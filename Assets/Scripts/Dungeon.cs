@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public class Dungeon
 {
     public int CurrentLevel => levelStack.Count - 1;

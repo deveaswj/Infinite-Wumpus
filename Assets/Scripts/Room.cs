@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public class Room
 {
     public int ID;
