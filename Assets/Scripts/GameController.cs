@@ -1,3 +1,6 @@
+using UnityEngine;
+using UnityEngine.UI;
+
 public class GameController : MonoBehaviour
 {
     public Text gameLogText;
@@ -15,6 +18,7 @@ public class GameController : MonoBehaviour
         player = new Player();
         dungeon = new Dungeon();
         currentRoom = dungeon.GetStartingRoom();
+        player.MoveTo(currentRoom.ID, 0);
         UpdateUI();
         Log("You awaken in a dark room...");
     }
@@ -32,28 +36,37 @@ public class GameController : MonoBehaviour
         HandleRoomEntry();
     }
 
-    public void OnStairsButton()
+
+    public void OnUpstairsButton()
     {
-        if (currentRoom.HasStairsDown)
+        if (currentRoom.HasStairsUp)
         {
-            dungeon.GoDownstairs(currentRoom);
-            currentRoom = dungeon.GetCurrentRoom();
-            player.AssignDonutIfEligible(dungeon.CurrentLevel);
-            Log("You descend the stairs...");
-        }
-        else if (currentRoom.HasStairsUp)
-        {
-            dungeon.GoUpstairs(currentRoom);
+            dungeon.Ascend(currentRoom);
             currentRoom = dungeon.GetCurrentRoom();
             Log("You climb the stairs...");
+            HandleRoomEntry();
         }
         else
         {
             Log("There are no stairs here.");
             return;
         }
+    }
 
-        HandleRoomEntry();
+    public void OnDownstairsButton()
+    {
+        if (currentRoom.HasStairsDown)
+        {
+            dungeon.Descend(currentRoom);
+            currentRoom = dungeon.GetCurrentRoom();
+            Log("You descend the stairs...");
+            HandleRoomEntry();
+        }
+        else
+        {
+            Log("There are no stairs here.");
+            return;
+        }
     }
 
     void HandleRoomEntry()
@@ -65,11 +78,11 @@ public class GameController : MonoBehaviour
             Log("You found a treasure!");
         }
 
-        if (currentRoom.IsPit)
+        if (currentRoom.HasPit)
         {
             Log("You stumble into a pit and fall!");
             player.TakeDamage();
-            dungeon.FallToNextLevel();
+            dungeon.Descend(currentRoom);
             currentRoom = dungeon.GetCurrentRoom();
         }
 
