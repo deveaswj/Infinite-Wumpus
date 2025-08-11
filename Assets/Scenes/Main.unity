@@ -410,13 +410,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnExitButton
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1692,7 +1692,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 745072149}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnUpstairsButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &745072149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1813,7 +1825,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 748983068}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnExitButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &748983068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2176,7 +2200,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 962186450}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnDownstairsButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &962186450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3376,7 +3412,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1773252710}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnExitButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1773252710
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Room
 {
@@ -22,22 +23,14 @@ public class Room
     public bool HasStairsDown { get; private set; } = false;
     public bool HasPit { get; private set; } = false;
     public bool HasDonut { get; private set; } = false;
-    public bool HasWumpus { get; private set; } = false;
     public bool HasTreasure { get; private set; } = false;
 
-    public bool IsSafe() => !HasPit && !HasWumpus;
     public bool HasAnyStairs() => HasStairsUp || HasStairsDown;
 
-    public Room(int id, int level)
+    public Room(int level, int id)
     {
-        this.id = id;
         this.level = level;
-    }
-
-    public Room(int id)
-    {
         this.id = id;
-        this.level = 0;
     }
 
     public void SetExits(Room[] rooms)
@@ -46,8 +39,18 @@ public class Room
             exits.Add(rooms[i]);
     }
 
-    public void SetStairsUp(bool value) => HasStairsUp = value;
-    public void SetStairsDown(bool value) => HasStairsDown = value;
+    public void SetStairsUp(bool value)
+    {
+        HasStairsUp = value;
+        Debug.Log("Stairs up in room " + id + " set to: " + value);
+    }
+
+    public void SetStairsDown(bool value)
+    {
+        HasStairsDown = value;
+        Debug.Log("Stairs down in room " + id + " set to: " + value);
+    }
+
     public void SetPit(bool value) => HasPit = value;
     public void SetDonut(bool value) => HasDonut = value;
     // public void SetWumpus(bool value) => HasWumpus = value;

@@ -1,61 +1,46 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player
+public class Player : Actor
 {
-    public int Health = 3;
+    const int MAX_HEALTH = 3;
+
+    public int Health { get; private set; } = MAX_HEALTH;
     public int Score = 0;
     public int TreasureCount = 0;
 
     public bool HasDonut = false;
 
-    int currentLevel = 0;
-    int currentRoomID = 0;
+    public Player(Dungeon dungeon) : base(dungeon) { }
 
-    public int CurrentLevel => currentLevel;
-    public int CurrentRoomID => currentRoomID;
-
-    private Dungeon dungeon;
-
-    public void EnterDungeon(Dungeon newDungeon)
+    public void EnterDungeon()
     {
-        dungeon = newDungeon;
         MoveTo(0, 0);
-    }
-
-    public void MoveTo(int roomID)
-    {
-        currentRoomID = roomID;
-    }
-
-    public void MoveTo(int roomID, int level)
-    {
-        dungeon.GetRoom(level, roomID);
-        currentRoomID = roomID;
-        currentLevel = level;
     }
 
     public void Ascend()
     {
-        MoveTo(currentRoomID, currentLevel - 1);
+        MoveTo(CurrentLevel - 1, CurrentRoomID);
     }
 
     public void Descend()
     {
-        MoveTo(currentRoomID, currentLevel + 1);
+        MoveTo(CurrentLevel + 1, CurrentRoomID);
     }
+
+    public void FallTo(int newLevel) => FallTo(newLevel, CurrentRoomID);
 
     public void FallTo(int newLevel, int newRoomID)
     {
-        currentLevel = newLevel;
-        currentRoomID = newRoomID;
-        Health = Mathf.Max(Health - 1, 0);
+        MoveTo(newLevel, newRoomID);
+        TakeDamage();
     }
 
-    public void TakeDamage()
-    {
-        Health = Mathf.Max(Health - 1, 0);
-    }
+    public void TakeDamage() => TakeDamage(1);
+    public void TakeDamage(int amount) => Health = Mathf.Max(Health - amount, 0);
+
+    public void Heal() => Heal(1);
+    public void Heal(int amount) => Health = Mathf.Min(Health + amount, MAX_HEALTH);
 
     public bool IsDead() => Health == 0;
 
@@ -63,7 +48,7 @@ public class Player
     {
         // current room SetTreasure(false)
         TreasureCount += 1;
-        dungeon.GetCurrentRoom().SetTreasure(false);
+        dungeon.GetRoom(this).SetTreasure(false);
         Score += 1;
     }
 
@@ -72,7 +57,41 @@ public class Player
         if (HasDonut)
         {
             HasDonut = false;
-            Health = Mathf.Min(Health + 1, 3);
+            Health = Mathf.Min(Health + 1, MAX_HEALTH);
         }
+    }
+
+    public void CollectDonut()
+    {
+        // don't attempt to collect donut if you're already carrying one
+        if (HasDonut) return;
+
+        // if the current room has a donut, collect it
+        Room currentRoom = dungeon.GetRoom(this);
+        if (currentRoom.HasDonut)
+        {
+            HasDonut = true;
+            currentRoom.SetDonut(false);
+        }
+    }
+
+    public override void HandlePit(Room room)
+    {
+        // FallTo(CurrentLevel, CurrentRoomID);
+    }
+
+    public override void HandleTreasure(Room room)
+    {
+        CollectTreasure();
+    }
+
+    public override void HandleDonut(Room room)
+    {
+        CollectDonut();
+    }
+
+    public override void HandleWumpus(Room room)
+    {
+        throw new System.NotImplementedException();
     }
 }
