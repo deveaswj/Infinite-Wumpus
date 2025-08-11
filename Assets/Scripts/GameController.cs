@@ -1,13 +1,16 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public Text gameLogText;
+    public TMP_Text gameLogText;
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
-    public Button stairsButton;
-    public Text healthText;
-    public Text treasureText;
+    public Button stairsUpButton;
+    public Button stairsDownButton;
+
+    //public Text healthText;
+    //public Text treasureText;
 
     private Player player;
     private Dungeon dungeon;
@@ -17,7 +20,10 @@ public class GameController : MonoBehaviour
     {
         player = new Player();
         dungeon = new Dungeon();
-        currentRoom = dungeon.GetStartingRoom();
+
+        player.EnterDungeon(dungeon);
+        currentRoom = dungeon.GetRoom(0, 0);
+
         player.MoveTo(currentRoom.ID, 0);
         UpdateUI();
         Log("You awaken in a dark room...");
@@ -71,10 +77,9 @@ public class GameController : MonoBehaviour
 
     void HandleRoomEntry()
     {
-        if (currentRoom.HasTreasure && !currentRoom.Collected)
+        if (currentRoom.HasTreasure)
         {
             player.CollectTreasure();
-            currentRoom.Collected = true;
             Log("You found a treasure!");
         }
 
@@ -92,7 +97,10 @@ public class GameController : MonoBehaviour
             {
                 Log("The Wumpus smells your donut, steals it, and flees!");
                 player.UseDonut();
-                currentRoom.HasWumpus = false;
+                //
+                // wumpus runs away and is no longer in the room
+                //
+                // currentRoom.HasWumpus = false;
             }
             else
             {
@@ -109,14 +117,14 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < exitButtons.Length; i++)
         {
             exitButtons[i].gameObject.SetActive(i < currentRoom.Exits.Count);
-            exitButtons[i].GetComponentInChildren<Text>().text = $"Go to Room {currentRoom.Exits[i].ID}";
+            exitButtons[i].GetComponentInChildren<TMP_Text>().text = $"Room {currentRoom.Exits[i].ID}";
         }
 
-        stairsButton.gameObject.SetActive(currentRoom.HasStairsDown || currentRoom.HasStairsUp);
-        stairsButton.GetComponentInChildren<Text>().text = currentRoom.HasStairsDown ? "Descend" : "Ascend";
+        stairsUpButton.gameObject.SetActive(currentRoom.HasStairsUp);
+        stairsDownButton.gameObject.SetActive(currentRoom.HasStairsDown);
 
-        healthText.text = $"HP: {player.Health}";
-        treasureText.text = $"Treasure: {player.TreasureCount}";
+        // healthText.text = $"HP: {player.Health}";
+        // treasureText.text = $"Treasure: {player.TreasureCount}";
 
         if (player.IsDead())
         {
@@ -134,6 +142,7 @@ public class GameController : MonoBehaviour
     {
         foreach (var btn in exitButtons)
             btn.interactable = false;
-        stairsButton.interactable = false;
+        stairsUpButton.interactable = false;
+        stairsDownButton.interactable = false;
     }
 }
