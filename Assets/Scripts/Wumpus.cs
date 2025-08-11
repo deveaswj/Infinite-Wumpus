@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Wumpus
+public class Wumpus : NPC
 {
     const int NUM_ROOMS = 20;
 

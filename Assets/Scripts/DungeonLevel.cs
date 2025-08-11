@@ -17,8 +17,6 @@ public class DungeonLevel
 
     public Room GetRoom(int id) => rooms[id];
 
-    private Wumpus wumpus = new Wumpus();
-
     public DungeonLevel(int levelNum)
     {
         levelNumber = levelNum;
@@ -37,21 +35,19 @@ public class DungeonLevel
     {
         rooms[roomID].SetStairsUp(value);
         StairsUpRoomID = roomID;
-        Debug.Log("Stairs Up in room " + StairsUpRoomID + " set to: " + value);
     }
 
     public void SetStairsDown(int roomID, bool value)
     {
         rooms[roomID].SetStairsDown(value);
         StairsDownRoomID = roomID;
-        Debug.Log("Stairs Down in room " + StairsUpRoomID  + " set to: " + value);
     }
 
     void CreateRooms()
     {
         // Create NUM_ROOMS rooms
         for (int i = 0; i < NUM_ROOMS; i++)
-            rooms[i] = new Room(i, levelNumber);
+            rooms[i] = new Room(levelNumber, i);
     }
 
     public void AddPits()

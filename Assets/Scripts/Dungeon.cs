@@ -35,34 +35,11 @@ public class Dungeon
         return levels[levelNumber].GetRoom(roomId);
     }
 
+    public Room GetRoom(Actor actor) => GetRoom(actor.CurrentLevel, actor.CurrentRoomID);
+
     public Room GetCurrentRoom()
     {
-        return GetRoom(player.CurrentLevel, player.CurrentRoomID);
-    }
-
-    public void Descend(Room fromRoom)
-    {
-        if (CurrentLevel == levels.Count - 1)   // are we on the lowest level?
-            AddNewLevel();
-
-        // go to the same room in the next level
-        player.Descend();
-
-        // Room[] nextLevel = levelStack[CurrentLevel + 1];
-        // Room targetRoom = nextLevel[fromRoom.ID];
-        // targetRoom.HasStairsUp = true;
-        // currentRoom = targetRoom;
-    }
-
-    public void Ascend(Room fromRoom)
-    {
-        if (CurrentLevel > 0)
-        {
-            player.Ascend();
-            // Room[] prevLevel = levelStack[CurrentLevel - 1];
-            // Room targetRoom = prevLevel[fromRoom.ID];
-            // currentRoom = targetRoom;
-        }
+        return GetRoom(player);
     }
 
     private void AddNewLevel()

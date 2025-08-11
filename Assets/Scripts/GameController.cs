@@ -14,69 +14,76 @@ public class GameController : MonoBehaviour
 
     private Player player;
     private Dungeon dungeon;
-    private Room currentRoom;
+//    private Room currentRoom;
 
     void Start()
     {
-        player = new Player();
         dungeon = new Dungeon();
+        player = new Player(dungeon);
 
-        player.EnterDungeon(dungeon);
-        currentRoom = dungeon.GetRoom(0, 0);
-
-        player.MoveTo(currentRoom.ID, 0);
+        player.EnterDungeon();  // calls MoveTo(0,0)
         UpdateUI();
         Log("You awaken in a dark room...");
     }
 
     public void OnExitButton(int index)
     {
-        if (index >= currentRoom.Exits.Count)
+        Room playerRoom = dungeon.GetRoom(player);
+
+        if (index >= playerRoom.Exits.Count)
         {
             Log("That way is blocked.");
             return;
         }
 
-        Room nextRoom = currentRoom.Exits[index];
-        currentRoom = nextRoom;
+        Room nextRoom = playerRoom.Exits[index];
+        player.MoveTo(nextRoom.Level, nextRoom.ID);
+
         HandleRoomEntry();
     }
 
 
     public void OnUpstairsButton()
     {
-        if (currentRoom.HasStairsUp)
+        Room playerRoom = dungeon.GetRoom(player);
+
+        if (playerRoom.HasStairsUp)
         {
-            dungeon.Ascend(currentRoom);
-            currentRoom = dungeon.GetCurrentRoom();
+            player.Ascend();
             Log("You climb the stairs...");
+
             HandleRoomEntry();
         }
         else
         {
-            Log("There are no stairs here.");
+            Log("There are no stairs leading up from here.");
             return;
         }
     }
 
     public void OnDownstairsButton()
     {
-        if (currentRoom.HasStairsDown)
+        Room playerRoom = dungeon.GetRoom(player);
+
+        if (playerRoom.HasStairsDown)
         {
-            dungeon.Descend(currentRoom);
-            currentRoom = dungeon.GetCurrentRoom();
+            player.Descend();
             Log("You descend the stairs...");
+
             HandleRoomEntry();
         }
         else
         {
-            Log("There are no stairs here.");
+            Log("There are no stairs leading down from here.");
             return;
         }
     }
 
     void HandleRoomEntry()
     {
+        Room playerRoom = dungeon.GetRoom(player);
+        Room currentRoom = playerRoom;
+
         if (currentRoom.HasTreasure)
         {
             player.CollectTreasure();
@@ -114,14 +121,16 @@ public class GameController : MonoBehaviour
 
     void UpdateUI()
     {
+        Room playerRoom = dungeon.GetRoom(player);
+
         for (int i = 0; i < exitButtons.Length; i++)
         {
-            exitButtons[i].gameObject.SetActive(i < currentRoom.Exits.Count);
-            exitButtons[i].GetComponentInChildren<TMP_Text>().text = $"Room {currentRoom.Exits[i].ID}";
+            exitButtons[i].gameObject.SetActive(i < playerRoom.Exits.Count);
+            exitButtons[i].GetComponentInChildren<TMP_Text>().text = $"Room {playerRoom.Exits[i].ID}";
         }
 
-        stairsUpButton.gameObject.SetActive(currentRoom.HasStairsUp);
-        stairsDownButton.gameObject.SetActive(currentRoom.HasStairsDown);
+        stairsUpButton.gameObject.SetActive(playerRoom.HasStairsUp);
+        stairsDownButton.gameObject.SetActive(playerRoom.HasStairsDown);
 
         // healthText.text = $"HP: {player.Health}";
         // treasureText.text = $"Treasure: {player.TreasureCount}";
