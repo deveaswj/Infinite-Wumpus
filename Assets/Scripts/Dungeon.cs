@@ -7,27 +7,42 @@ public class Dungeon
     [SerializeField] Player player;
 
     public int CurrentLevel => player.CurrentLevel;
-    private List<DungeonLevel> levelStack = new();
-    private Room currentRoom;
+    private List<DungeonLevel> levels = new();
+    // private Room currentRoom;
 
     public Dungeon()
     {
         AddNewLevel(); // Start with one level
     }
 
-    public Room GetStartingRoom()
+    private void EnsureLevelExists(int targetLevel)
     {
-        return currentRoom;
+        // Make sure the list can hold the target level index
+        while (levels.Count <= targetLevel)
+            levels.Add(null);
+
+        // Generate any missing levels sequentially so links are correct
+        for (int i = 0; i <= targetLevel; i++)
+        {
+            if (levels[i] == null)
+                levels[i] = GenerateLevel(i);
+        }
+    }
+
+    public Room GetRoom(int levelNumber, int roomId)
+    {
+        EnsureLevelExists(levelNumber);
+        return levels[levelNumber].GetRoom(roomId);
     }
 
     public Room GetCurrentRoom()
     {
-        return currentRoom;
+        return GetRoom(player.CurrentLevel, player.CurrentRoomID);
     }
 
     public void Descend(Room fromRoom)
     {
-        if (CurrentLevel == levelStack.Count - 1)   // are we on the lowest level?
+        if (CurrentLevel == levels.Count - 1)   // are we on the lowest level?
             AddNewLevel();
 
         // go to the same room in the next level
@@ -52,25 +67,43 @@ public class Dungeon
 
     private void AddNewLevel()
     {
-        DungeonLevel newLevel = new DungeonLevel(levelStack.Count);
+        EnsureLevelExists(levels.Count);
+    }
 
-        if (levelStack.Count > 0)   // no stairs on zeroth level
+    private DungeonLevel GenerateLevel(int levelNumber)
+    {
+        Debug.Log("Generating level " + levelNumber);
+
+        DungeonLevel newLevel = new DungeonLevel(levels.Count);
+
+        int roomCount = newLevel.RoomCount();
+
+        // Link stairs up if not first level
+        if (levelNumber > 0 && levels[levelNumber - 1] != null)
         {
-            if (currentRoom.HasStairsDown)
-            {
-                // In the new level, place stairs back up
-                newLevel.AddUpStairs(currentRoom.ID);
-            }
+            int upId = levels[levelNumber - 1].StairsDownRoomID;
+            newLevel.SetStairsUp(upId, true);
         }
 
-        newLevel[0].HasStairsDown = true;
-        newLevel[3].HasTreasure = true;
+        // Pick new level's stairs-down room
+        // (may or may not be the same room as the stairs-up room)
+        int stairsRoomId = Random.Range(0, roomCount);
+        newLevel.SetStairsDown(stairsRoomId, true);
 
-        // Random pit and Wumpus placement (later we'll want to make this smarter)
-        newLevel[7].HasPit = true;
-        newLevel[10].HasWumpus = true;
+        // Add features
 
-        levelStack.Add(newLevel);
-        currentRoom = newLevel[0]; // Start new level in room 0
+        // Add pits
+        newLevel.AddPits();
+
+        // Add treasures
+        newLevel.AddTreasures();
+
+        // Add donuts
+        newLevel.AddDonuts();
+
+        // Add wumpus
+        newLevel.AddWumpus();
+
+        return newLevel;
     }
 }

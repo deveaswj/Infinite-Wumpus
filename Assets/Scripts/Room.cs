@@ -18,12 +18,15 @@ public class Room
     // Stairs up/down always lead to the same Room number on the DungeonLevel above/below this one
     // Pit always leads to the same Room number on the DungeonLevel below this one
     // With these constraints we don't have to store room number references
-    public bool HasStairsUp = false;
-    public bool HasStairsDown = false;
-    public bool HasPit = false;
-    public bool HasWumpus = false;
-    public bool HasTreasure = false;
-    public bool Collected = false;
+    public bool HasStairsUp { get; private set; } = false;
+    public bool HasStairsDown { get; private set; } = false;
+    public bool HasPit { get; private set; } = false;
+    public bool HasDonut { get; private set; } = false;
+    public bool HasWumpus { get; private set; } = false;
+    public bool HasTreasure { get; private set; } = false;
+
+    public bool IsSafe() => !HasPit && !HasWumpus;
+    public bool HasAnyStairs() => HasStairsUp || HasStairsDown;
 
     public Room(int id, int level)
     {
@@ -42,4 +45,11 @@ public class Room
         for (int i = 0; i < rooms.Length; i++)
             exits.Add(rooms[i]);
     }
+
+    public void SetStairsUp(bool value) => HasStairsUp = value;
+    public void SetStairsDown(bool value) => HasStairsDown = value;
+    public void SetPit(bool value) => HasPit = value;
+    public void SetDonut(bool value) => HasDonut = value;
+    // public void SetWumpus(bool value) => HasWumpus = value;
+    public void SetTreasure(bool value) => HasTreasure = value;
 }

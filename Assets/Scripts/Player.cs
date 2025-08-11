@@ -15,8 +15,13 @@ public class Player
     public int CurrentLevel => currentLevel;
     public int CurrentRoomID => currentRoomID;
 
-    // For climbing back up from stairs
-    // public Stack<(int level, int room)> RoomHistory = new();
+    private Dungeon dungeon;
+
+    public void EnterDungeon(Dungeon newDungeon)
+    {
+        dungeon = newDungeon;
+        MoveTo(0, 0);
+    }
 
     public void MoveTo(int roomID)
     {
@@ -25,6 +30,7 @@ public class Player
 
     public void MoveTo(int roomID, int level)
     {
+        dungeon.GetRoom(level, roomID);
         currentRoomID = roomID;
         currentLevel = level;
     }
@@ -55,6 +61,9 @@ public class Player
 
     public void CollectTreasure()
     {
+        // current room SetTreasure(false)
+        TreasureCount += 1;
+        dungeon.GetCurrentRoom().SetTreasure(false);
         Score += 1;
     }
 
