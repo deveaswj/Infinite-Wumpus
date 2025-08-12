@@ -6,7 +6,7 @@ public interface ILocatable
     int CurrentRoomID { get; }
 }
 
-public class Actor : ILocatable
+public abstract class Actor : ILocatable
 {
     public int CurrentLevel { get; private set; }
     public int CurrentRoomID { get; private set; }
@@ -17,10 +17,17 @@ public class Actor : ILocatable
         this.dungeon = dungeon;
     }
 
-    public void MoveTo(int level, int roomID)
+    public Room MoveTo(int levelID, int roomID)
     {
-        dungeon.GetRoom(level, roomID); // Ensure exists
-        CurrentLevel = level;
+        Room room = dungeon.GetRoom(levelID, roomID); // Ensure exists
+        CurrentLevel = levelID;
         CurrentRoomID = roomID;
+        return room;
     }
+
+    public abstract void HandlePit();
+    public abstract void HandleTreasure();
+    public abstract void HandleDonut();
+    public abstract void HandleWumpus();
+
 }

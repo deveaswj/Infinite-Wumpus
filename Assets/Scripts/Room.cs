@@ -16,6 +16,11 @@ public class Room
     int level = 0;
     public int Level => level;
 
+    private List<Actor> occupants = new List<Actor>();
+    public IReadOnlyList<Actor> Occupants => occupants;
+    public bool IsOccupied => occupants.Count > 0;
+
+
     // Stairs up/down always lead to the same Room number on the DungeonLevel above/below this one
     // Pit always leads to the same Room number on the DungeonLevel below this one
     // With these constraints we don't have to store room number references
@@ -55,4 +60,16 @@ public class Room
     public void SetDonut(bool value) => HasDonut = value;
     // public void SetWumpus(bool value) => HasWumpus = value;
     public void SetTreasure(bool value) => HasTreasure = value;
-}
+
+    public void AddOccupant(Actor actor)
+    {
+        if (!occupants.Contains(actor))
+            occupants.Add(actor);
+    }
+
+    public void RemoveOccupant(Actor actor)
+    {
+        occupants.Remove(actor);
+    }
+
+    public void ClearOccupants() => occupants.Clear();}

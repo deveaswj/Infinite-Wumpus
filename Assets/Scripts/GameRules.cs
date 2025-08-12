@@ -12,10 +12,11 @@ public class GameRules
 
     public void OnActorEnterRoom(Actor actor)
     {
-        var room = dungeon.GetRoom(actor.CurrentLevel, actor.CurrentRoomID);
+        var room = dungeon.GetRoom(actor);
 
         if (room.HasPit)
         {
+            actor.HandlePit();
             // actor.TakeDamage(10);
             // actor.MoveTo(actor.CurrentLevel + 1, actor.CurrentRoomId);
             // OnActorEnterRoom(actor); // recursive fall until no pit
@@ -24,7 +25,7 @@ public class GameRules
 
         if (room.HasTreasure)
         {
-            actor.HandleTreasure(room);
+            actor.HandleTreasure();
         }
     }
 }
