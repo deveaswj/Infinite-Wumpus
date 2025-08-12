@@ -2,31 +2,11 @@ using UnityEngine;
 
 public class Wumpus : NPC
 {
-    const int NUM_ROOMS = 20;
+    public Wumpus(Dungeon dungeon) : base(dungeon) { }
 
-    public int RoomID { get; private set; }
-
-    public Wumpus(int roomID) => RoomID = roomID;
-    public Wumpus() => RoomID = -1;
-
-    public void SetRoomID(int roomID)
-    {
-        // if between 0 and NUM_ROOMS
-        if (roomID >= 0 && roomID < NUM_ROOMS)
-        {
-            RoomID = roomID;
-        }
-    }
-
-    public void MoveTo(int roomID) => RoomID = roomID;
-    public void Kill() => RoomID = -1;
-
-    public bool IsAlive() => RoomID != -1;
-    public bool IsDead() => RoomID == -1;
-
-    public bool IsInRoom(int roomID) => RoomID == roomID;
-    public bool IsInRoom(Room room) => RoomID == room.ID;
-
+    // For now, the Wumpus just stays in one room
+    // If the player is in the same room:
+    // - Does the player have a Donut? Yes: Wumpus steals donut and flees. No: Wumpus attacks (player takes damage) and flees.
 }
 
 

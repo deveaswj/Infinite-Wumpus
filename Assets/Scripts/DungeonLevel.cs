@@ -5,8 +5,7 @@ public class DungeonLevel
 {
     const int NUM_ROOMS = 20;
 
-    int levelNumber;
-    public int LevelNumber => levelNumber;
+    int ID;
 
     Room[] rooms = new Room[NUM_ROOMS];
     public Room[] Rooms => rooms;
@@ -17,9 +16,9 @@ public class DungeonLevel
 
     public Room GetRoom(int id) => rooms[id];
 
-    public DungeonLevel(int levelNum)
+    public DungeonLevel(int levelID)
     {
-        levelNumber = levelNum;
+        ID = levelID;
         GenerateLevel();
     }
 
@@ -47,7 +46,7 @@ public class DungeonLevel
     {
         // Create NUM_ROOMS rooms
         for (int i = 0; i < NUM_ROOMS; i++)
-            rooms[i] = new Room(levelNumber, i);
+            rooms[i] = new Room(ID, i);
     }
 
     public void AddPits()

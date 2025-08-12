@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,17 +10,21 @@ public class GameController : MonoBehaviour
     public Button stairsUpButton;
     public Button stairsDownButton;
 
-    //public Text healthText;
+    public TMP_Text healthText;
     //public Text treasureText;
+
+    private string logMessage = "";
 
     private Player player;
     private Dungeon dungeon;
+    private GameRules gameRules;
 //    private Room currentRoom;
 
     void Start()
     {
         dungeon = new Dungeon();
         player = new Player(dungeon);
+        gameRules = new GameRules(dungeon);
 
         player.EnterDungeon();  // calls MoveTo(0,0)
         UpdateUI();
@@ -33,13 +38,17 @@ public class GameController : MonoBehaviour
         if (index >= playerRoom.Exits.Count)
         {
             Log("That way is blocked.");
-            return;
         }
-
-        Room nextRoom = playerRoom.Exits[index];
-        player.MoveTo(nextRoom.Level, nextRoom.ID);
-
-        HandleRoomEntry();
+        else
+        {
+            Room nextRoom = playerRoom.Exits[index];
+            int level = nextRoom.Level;
+            int id = nextRoom.ID;
+            Log("You head to " + "level " + level + ", room " + id);
+            player.MoveTo(nextRoom.Level, nextRoom.ID);
+            gameRules.OnActorEnterRoom(player);
+        }
+        UpdateUI();
     }
 
 
@@ -50,13 +59,18 @@ public class GameController : MonoBehaviour
         if (playerRoom.HasStairsUp)
         {
             player.Ascend();
-            Log("You climb the stairs...");
+            Room nextRoom = dungeon.GetRoom(player);
 
-            HandleRoomEntry();
+            Log("You climb the stairs...");
+            LogRoom(nextRoom);
+
+            gameRules.OnActorEnterRoom(player);
+            UpdateUI();
         }
         else
         {
             Log("There are no stairs leading up from here.");
+            UpdateUI();
             return;
         }
     }
@@ -68,55 +82,20 @@ public class GameController : MonoBehaviour
         if (playerRoom.HasStairsDown)
         {
             player.Descend();
-            Log("You descend the stairs...");
+            Room nextRoom = dungeon.GetRoom(player);
 
-            HandleRoomEntry();
+            Log("You descend the stairs...");
+            LogRoom(nextRoom);
+
+            gameRules.OnActorEnterRoom(player);
+            UpdateUI();
         }
         else
         {
             Log("There are no stairs leading down from here.");
+            UpdateUI();
             return;
         }
-    }
-
-    void HandleRoomEntry()
-    {
-        Room playerRoom = dungeon.GetRoom(player);
-        Room currentRoom = playerRoom;
-
-        if (currentRoom.HasTreasure)
-        {
-            player.CollectTreasure();
-            Log("You found a treasure!");
-        }
-
-        if (currentRoom.HasPit)
-        {
-            Log("You stumble into a pit and fall!");
-            player.TakeDamage();
-            dungeon.Descend(currentRoom);
-            currentRoom = dungeon.GetCurrentRoom();
-        }
-
-        if (currentRoom.HasWumpus)
-        {
-            if (player.HasDonut)
-            {
-                Log("The Wumpus smells your donut, steals it, and flees!");
-                player.UseDonut();
-                //
-                // wumpus runs away and is no longer in the room
-                //
-                // currentRoom.HasWumpus = false;
-            }
-            else
-            {
-                Log("The Wumpus attacks! You take damage.");
-                player.TakeDamage();
-            }
-        }
-
-        UpdateUI();
     }
 
     void UpdateUI()
@@ -132,7 +111,10 @@ public class GameController : MonoBehaviour
         stairsUpButton.gameObject.SetActive(playerRoom.HasStairsUp);
         stairsDownButton.gameObject.SetActive(playerRoom.HasStairsDown);
 
-        // healthText.text = $"HP: {player.Health}";
+        gameLogText.text = logMessage;
+        // logMessage = "";
+
+        healthText.text = $"HP: {player.Health}";
         // treasureText.text = $"Treasure: {player.TreasureCount}";
 
         if (player.IsDead())
@@ -144,7 +126,14 @@ public class GameController : MonoBehaviour
 
     void Log(string message)
     {
-        gameLogText.text = message;
+        logMessage += message + "\n";
+        Debug.Log(message);
+    }
+
+    void LogRoom(Room room)
+    {
+        string message = "You are in room " + room.ID + " (level " + room.Level + ")";
+        Log(message);
     }
 
     void DisableInput()

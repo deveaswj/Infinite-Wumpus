@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Dungeon
 {
-    [SerializeField] Player player;
-
-    public int CurrentLevel => player.CurrentLevel;
     private List<DungeonLevel> levels = new();
     // private Room currentRoom;
 
@@ -29,36 +26,31 @@ public class Dungeon
         }
     }
 
-    public Room GetRoom(int levelNumber, int roomId)
+    public Room GetRoom(int levelID, int roomID)
     {
-        EnsureLevelExists(levelNumber);
-        return levels[levelNumber].GetRoom(roomId);
+        EnsureLevelExists(levelID);
+        return levels[levelID].GetRoom(roomID);
     }
 
     public Room GetRoom(Actor actor) => GetRoom(actor.CurrentLevel, actor.CurrentRoomID);
-
-    public Room GetCurrentRoom()
-    {
-        return GetRoom(player);
-    }
 
     private void AddNewLevel()
     {
         EnsureLevelExists(levels.Count);
     }
 
-    private DungeonLevel GenerateLevel(int levelNumber)
+    private DungeonLevel GenerateLevel(int levelID)
     {
-        Debug.Log("Generating level " + levelNumber);
+        Debug.Log("Generating level " + levelID);
 
-        DungeonLevel newLevel = new DungeonLevel(levels.Count);
+        DungeonLevel newLevel = new DungeonLevel(levels.Count - 1);
 
         int roomCount = newLevel.RoomCount();
 
         // Link stairs up if not first level
-        if (levelNumber > 0 && levels[levelNumber - 1] != null)
+        if (levelID > 0 && levels[levelID - 1] != null)
         {
-            int upId = levels[levelNumber - 1].StairsDownRoomID;
+            int upId = levels[levelID - 1].StairsDownRoomID;
             newLevel.SetStairsUp(upId, true);
         }
 

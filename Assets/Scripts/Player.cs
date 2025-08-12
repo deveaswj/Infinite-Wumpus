@@ -75,22 +75,22 @@ public class Player : Actor
         }
     }
 
-    public override void HandlePit(Room room)
+    public override void HandlePit()
     {
         // FallTo(CurrentLevel, CurrentRoomID);
     }
 
-    public override void HandleTreasure(Room room)
+    public override void HandleTreasure()
     {
         CollectTreasure();
     }
 
-    public override void HandleDonut(Room room)
+    public override void HandleDonut()
     {
         CollectDonut();
     }
 
-    public override void HandleWumpus(Room room)
+    public override void HandleWumpus()
     {
         throw new System.NotImplementedException();
     }

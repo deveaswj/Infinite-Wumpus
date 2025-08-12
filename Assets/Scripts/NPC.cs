@@ -4,22 +4,22 @@ public class NPC : Actor
 {
     public NPC(Dungeon dungeon) : base(dungeon) {}
 
-    public override void HandleDonut(Room room)
+    public override void HandleDonut()
     {
         // do nothing
     }
 
-    public override void HandlePit(Room room)
+    public override void HandlePit()
     {
         // do nothing
     }
 
-    public override void HandleTreasure(Room room)
+    public override void HandleTreasure()
     {
         // do nothing
     }
 
-    public override void HandleWumpus(Room room)
+    public override void HandleWumpus()
     {
         // do nothing
     }
