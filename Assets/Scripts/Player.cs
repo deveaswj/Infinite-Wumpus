@@ -5,13 +5,16 @@ public class Player : Actor
 {
     const int MAX_HEALTH = 3;
 
-    public int Health { get; private set; } = MAX_HEALTH;
     public int Score = 0;
     public int TreasureCount = 0;
 
     public bool HasDonut = false;
 
-    public Player(Dungeon dungeon) : base(dungeon) { }
+    public Player(Dungeon dungeon) : base(dungeon)
+    {
+        MaxHealth = MAX_HEALTH;
+        Health = MAX_HEALTH;
+    }
 
     public void EnterDungeon()
     {
@@ -28,53 +31,36 @@ public class Player : Actor
         MoveTo(CurrentLevel + 1, CurrentRoomID);
     }
 
-    public void FallTo(int newLevel) => FallTo(newLevel, CurrentRoomID);
-
-    public void FallTo(int newLevel, int newRoomID)
-    {
-        MoveTo(newLevel, newRoomID);
-        TakeDamage();
-    }
-
-    public void TakeDamage() => TakeDamage(1);
-    public void TakeDamage(int amount) => Health = Mathf.Max(Health - amount, 0);
-
-    public void Heal() => Heal(1);
-    public void Heal(int amount) => Health = Mathf.Min(Health + amount, MAX_HEALTH);
-
-    public bool IsDead() => Health == 0;
-
     public int AddScore(int amount)
     {
         Score += amount;
         return Score;
     }
 
+    public void GainDonut() => HasDonut = true;
+    public void LoseDonut() => HasDonut = false;
+
     public void UseDonut()
     {
         if (HasDonut)
         {
-            HasDonut = false;
+            LoseDonut();
             Health = Mathf.Min(Health + 1, MAX_HEALTH);
         }
     }
 
-    public void CollectDonut()
-    {
-        // don't attempt to collect donut if you're already carrying one
-        if (HasDonut) return;
+    // public void CollectDonut()
+    // {
+    //     // don't attempt to collect donut if you're already carrying one
+    //     if (HasDonut) return;
 
-        // if the current room has a donut, collect it
-        Room currentRoom = dungeon.GetRoom(this);
-        if (currentRoom.HasDonut)
-        {
-            HasDonut = true;
-            currentRoom.SetDonut(false);
-        }
-    }
+    //     // if the current room has a donut, collect it
+    //     Room currentRoom = dungeon.GetRoom(this);
+    //     if (currentRoom.HasDonut)
+    //     {
+    //         HasDonut = true;
+    //         currentRoom.SetDonut(false);
+    //     }
+    // }
 
-    public override void HandlePit()
-    {
-        // FallTo(CurrentLevel, CurrentRoomID);
-    }
 }
