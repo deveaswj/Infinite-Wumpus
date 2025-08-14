@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ public class DungeonLevel
     public int StairsDownRoomID = -1;
     public int StairsUpRoomID = -1;
 
+    // Keep track of which rooms have pits
+    // so we can prevent adding pits below pits across levels
+    // (pits should only drop one level)
+    List<int> pitRoomIDs = new();
+
     public DungeonLevel(int levelID)
     {
         ID = levelID;
@@ -21,6 +27,11 @@ public class DungeonLevel
 
     public Room GetRoom(int id) => rooms[id];
     public int RoomCount() => NUM_ROOMS;
+
+    public List<int> PitRoomIDs
+    {
+        get => pitRoomIDs;
+    }
 
     void GenerateLevel()
     {
@@ -51,23 +62,30 @@ public class DungeonLevel
 
     public void AddFeatures()
     {
-        AddPits();
+        AddBats();
         AddTreasures();
         AddDonuts();
     }
 
-    public void AddPits()
+    public void AddPits(List<int> excludeRoomIDs)
     {
-        // Add pits to 1-3 rooms that have no stairs and no pit
+        // Add pits to 1-3 rooms that have no stairs and no pit, and no pit in the level above
         int numPits = Random.Range(1, 4);
         while (numPits > 0)
         {
-            int pitRoomId = Random.Range(0, NUM_ROOMS);
-            Room pitRoom = GetRoom(pitRoomId);
+            int pitRoomID = Random.Range(0, NUM_ROOMS);
+            // loop if pitRoomID is in excludeRoomIDs
+            if (excludeRoomIDs.Contains(pitRoomID))
+            {
+                Debug.Log("Level " + ID + ": Pick again - Can't add pit to room " + pitRoomID);
+                continue;
+            }
+            Room pitRoom = GetRoom(pitRoomID);
             if (!pitRoom.HasAnyStairs() && !pitRoom.HasPit)
             {
-                Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomId);
+                Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomID);
                 pitRoom.SetPit(true);
+                pitRoomIDs.Add(pitRoomID);
                 numPits--;
             }
         }
@@ -106,6 +124,41 @@ public class DungeonLevel
             }
         }
     }
+
+    public void AddBats()
+    {
+        // Add bats to 1-3 rooms that have no bats
+        // Bats can coexist with pits! They can fly!
+        int numBats = Random.Range(1, 4);
+        AddBats(numBats);
+    }
+
+    public void AddBats(int numBats)
+    {
+        // Add (numBats) bats to rooms that have no bats nor stairs
+        // Bats can coexist with pits! They can fly!
+        while (numBats > 0)
+        {
+            int batsRoomId = Random.Range(0, NUM_ROOMS);
+            Room batsRoom = GetRoom(batsRoomId);
+            if (!batsRoom.HasBats && !batsRoom.HasAnyStairs())
+            {
+                Debug.Log("Level " + ID + ": Adding bats to room " + batsRoomId);
+                batsRoom.SetBats(true);
+                numBats--;
+            }
+        }
+    }
+
+    public void MoveBats(Room fromRoom)
+    {
+        if (fromRoom.HasBats)
+        {
+            fromRoom.SetBats(false);
+            AddBats(1);
+        }
+    }
+
 
     public void AddWumpus()
     {
@@ -161,6 +214,16 @@ public class DungeonLevel
             if (rooms[i].HasTreasure) count++;
         }
         return count;
+    }
+
+    public Room GetRandomRoom() => rooms[Random.Range(0, NUM_ROOMS)];
+
+    public Room GetRandomSafeRoom()
+    {
+        Room randomRoom = GetRandomRoom();
+        while (!randomRoom.IsSafe)
+            randomRoom = GetRandomRoom();
+        return randomRoom;
     }
 
 }

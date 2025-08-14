@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
     public Button stairsDownButton;
 
     public TMP_Text healthText;
-    //public Text treasureText;
+    public TMP_Text scoreText;
 
     private Player player;
     private Dungeon dungeon;
@@ -115,7 +115,7 @@ public class GameController : MonoBehaviour
         stairsDownButton.gameObject.SetActive(playerRoom.HasStairsDown);
 
         healthText.text = $"HP: {player.Health}";
-        // treasureText.text = $"Treasure: {player.TreasureCount}";
+        scoreText.text = $"Score: {player.Score}";
 
         if (player.IsDead())
         {
@@ -132,7 +132,7 @@ public class GameController : MonoBehaviour
 
     void ClearLog()
     {
-        narrator.Clear();
+        narrator.ClearHistory();
     }
 
     void LogRoom(Room room)

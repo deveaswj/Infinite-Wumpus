@@ -11,6 +11,10 @@ public class Room
 {
     int id;
     public int ID => id;
+
+    int uid;
+    public int UID => uid;
+
     List<Room> exits = new();
     public List<Room> Exits => exits;
 
@@ -25,6 +29,7 @@ public class Room
     public IReadOnlyList<Actor> Occupants => occupants;
     public bool IsOccupied => occupants.Count > 0;
 
+    public bool IsSafe => !HasPit && !HasBats;
 
     // Stairs up/down always lead to the same Room number on the DungeonLevel above/below this one
     // Pit always leads to the same Room number on the DungeonLevel below this one
@@ -33,11 +38,11 @@ public class Room
     public bool HasStairsDown { get; private set; } = false;
     public bool HasPit { get; private set; } = false;
     public bool HasDonut { get; private set; } = false;
+    public bool HasBats { get; private set; } = false;
     public bool HasTreasure { get; private set; } = false;
 
-    private int treasureValue = 0;
-    private string treasureDescription = "Nothing of note.";
     Treasure treasure = null;
+    public Treasure Treasure { get => treasure; }
 
     public bool HasAnyStairs() => HasStairsUp || HasStairsDown;
 
@@ -45,6 +50,7 @@ public class Room
     {
         this.level = level;
         this.id = id;
+        uid = (level * 1000) + id; // Unique ID - level 01 room 20 = 01020, and so on - not scalable beyond 999 rooms per level
     }
 
     public void SetExits(Room[] rooms)
@@ -67,6 +73,7 @@ public class Room
 
     public void SetPit(bool value) => HasPit = value;
     public void SetDonut(bool value) => HasDonut = value;
+    public void SetBats(bool value) => HasBats = value;
 
     // public void SetWumpus(bool value) => HasWumpus = value;
 
@@ -84,7 +91,7 @@ public class Room
     }
 
     // Calling GetTreasure clears the treasure flag and returns the value
-    public Treasure GetTreasure()
+    public Treasure ClaimTreasure()
     {
         Treasure roomTreasure = treasure;
         if (roomTreasure.Value > 0) SetTreasure(false);
@@ -96,12 +103,12 @@ public class Room
         // create a list of treasure descriptions so we can pick one
         List<Treasure> treasures = new List<Treasure>
             {
-                new Treasure { Value =  5, Description = "a small coin" },
-                new Treasure { Value =  6, Description = "" },
-                new Treasure { Value =  7, Description = "" },
-                new Treasure { Value =  8, Description = "" },
-                new Treasure { Value =  9, Description = "" },
-                new Treasure { Value = 10, Description = "" }
+                new() { Value =  1, Description = "a copper coin" },
+                new() { Value =  4, Description = "a silver coin" },
+                new() { Value =  7, Description = "a few coins" },
+                new() { Value = 10, Description = "several coins" },
+                new() { Value = 15, Description = "a gemstone" },
+                new() { Value = 20, Description = "a jeweled egg" }
             };
 
         // get a random treasure
@@ -109,7 +116,6 @@ public class Room
         Treasure treasure = treasures[index];
         return treasure;
     }
-
 
     public void AddOccupant(Actor actor)
     {
