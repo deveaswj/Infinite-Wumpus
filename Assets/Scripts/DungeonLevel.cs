@@ -12,9 +12,6 @@ public class DungeonLevel
 
     public int StairsDownRoomID = -1;
     public int StairsUpRoomID = -1;
-    public int treasureCount = 0;
-
-    public Room GetRoom(int id) => rooms[id];
 
     public DungeonLevel(int levelID)
     {
@@ -22,6 +19,7 @@ public class DungeonLevel
         GenerateLevel();
     }
 
+    public Room GetRoom(int id) => rooms[id];
     public int RoomCount() => NUM_ROOMS;
 
     void GenerateLevel()
@@ -32,12 +30,14 @@ public class DungeonLevel
 
     public void SetStairsUp(int roomID, bool value)
     {
+        Debug.Log("Level " + ID + ": Setting stairs up in room " + roomID + " to " + value);
         rooms[roomID].SetStairsUp(value);
         StairsUpRoomID = roomID;
     }
 
     public void SetStairsDown(int roomID, bool value)
     {
+        Debug.Log("Level " + ID + ": Setting stairs down in room " + roomID + " to " + value);
         rooms[roomID].SetStairsDown(value);
         StairsDownRoomID = roomID;
     }
@@ -49,19 +49,26 @@ public class DungeonLevel
             rooms[i] = new Room(ID, i);
     }
 
+    public void AddFeatures()
+    {
+        AddPits();
+        AddTreasures();
+        AddDonuts();
+    }
+
     public void AddPits()
     {
         // Add pits to 1-3 rooms that have no stairs and no pit
         int numPits = Random.Range(1, 4);
-        int pitCount = 0;
-        while (pitCount < numPits)
+        while (numPits > 0)
         {
             int pitRoomId = Random.Range(0, NUM_ROOMS);
             Room pitRoom = GetRoom(pitRoomId);
             if (!pitRoom.HasAnyStairs() && !pitRoom.HasPit)
             {
+                Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomId);
                 pitRoom.SetPit(true);
-                pitCount++;
+                numPits--;
             }
         }
     }
@@ -70,33 +77,32 @@ public class DungeonLevel
     {
         // Add treasures to 1-3 rooms that have no pit and no treasure
         int numTreasures = Random.Range(1, 4);
-        int treasureCount = 0;
-        while (treasureCount < numTreasures)
+        while (numTreasures > 0)
         {
             int treasureRoomId = Random.Range(0, NUM_ROOMS);
             Room treasureRoom = GetRoom(treasureRoomId);
             if (!treasureRoom.HasPit && !treasureRoom.HasTreasure)
             {
+                Debug.Log("Level " + ID + ": Adding treasure to room " + treasureRoomId);
                 treasureRoom.SetTreasure(true);
-                treasureCount++;
+                numTreasures--;
             }
         }
-        this.treasureCount += treasureCount;
     }
 
     public void AddDonuts()
     {
-        // Add donuts to 1-3 rooms that have no pit and no donut
-        int numDonuts = Random.Range(1, 4);
-        int donutCount = 0;
-        while (donutCount < numDonuts)
+        // Add donuts to 0-3 rooms that have no pit and no donut
+        int numDonuts = Random.Range(0, 4);
+        while (numDonuts > 0)
         {
             int donutRoomId = Random.Range(0, NUM_ROOMS);
             Room donutRoom = GetRoom(donutRoomId);
             if (!donutRoom.HasPit && !donutRoom.HasDonut)
             {
+                Debug.Log("Level " + ID + ": Adding donut to room " + donutRoomId);
                 donutRoom.SetDonut(true);
-                donutCount++;
+                numDonuts--;
             }
         }
     }
@@ -145,6 +151,16 @@ public class DungeonLevel
 
             rooms[i].SetExits(exits);
         }
+    }
+
+    public int CountTreasures()
+    {
+        int count = 0;
+        for (int i = 0; i < NUM_ROOMS; i++)
+        {
+            if (rooms[i].HasTreasure) count++;
+        }
+        return count;
     }
 
 }

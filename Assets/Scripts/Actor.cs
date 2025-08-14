@@ -12,6 +12,8 @@ public abstract class Actor : ILocatable
     public int CurrentRoomID { get; private set; }
     protected Dungeon dungeon;
 
+    public bool IsFalling { get; private set; } = false;
+
     public Actor(Dungeon dungeon)
     {
         this.dungeon = dungeon;
@@ -26,8 +28,5 @@ public abstract class Actor : ILocatable
     }
 
     public abstract void HandlePit();
-    public abstract void HandleTreasure();
-    public abstract void HandleDonut();
-    public abstract void HandleWumpus();
 
 }

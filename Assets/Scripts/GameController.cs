@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public TMP_Text gameLogText;
+    public RollingTextHistory narrator;
+
+    // public TMP_Text gameLogText;
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
     public Button stairsUpButton;
     public Button stairsDownButton;
 
     public TMP_Text healthText;
     //public Text treasureText;
-
-    private string logMessage = "";
 
     private Player player;
     private Dungeon dungeon;
@@ -24,11 +24,11 @@ public class GameController : MonoBehaviour
     {
         dungeon = new Dungeon();
         player = new Player(dungeon);
-        gameRules = new GameRules(dungeon);
+        gameRules = new GameRules(dungeon, player, narrator);
 
         player.EnterDungeon();  // calls MoveTo(0,0)
-        UpdateUI();
         Log("You awaken in a dark room...");
+        UpdateUI();
     }
 
     public void OnExitButton(int index)
@@ -44,6 +44,7 @@ public class GameController : MonoBehaviour
             Room nextRoom = playerRoom.Exits[index];
             int level = nextRoom.Level;
             int id = nextRoom.ID;
+            ClearLog();
             Log("You head to " + "level " + level + ", room " + id);
             player.MoveTo(nextRoom.Level, nextRoom.ID);
             gameRules.OnActorEnterRoom(player);
@@ -61,6 +62,7 @@ public class GameController : MonoBehaviour
             player.Ascend();
             Room nextRoom = dungeon.GetRoom(player);
 
+            ClearLog();
             Log("You climb the stairs...");
             LogRoom(nextRoom);
 
@@ -84,6 +86,7 @@ public class GameController : MonoBehaviour
             player.Descend();
             Room nextRoom = dungeon.GetRoom(player);
 
+            ClearLog();
             Log("You descend the stairs...");
             LogRoom(nextRoom);
 
@@ -111,9 +114,6 @@ public class GameController : MonoBehaviour
         stairsUpButton.gameObject.SetActive(playerRoom.HasStairsUp);
         stairsDownButton.gameObject.SetActive(playerRoom.HasStairsDown);
 
-        gameLogText.text = logMessage;
-        // logMessage = "";
-
         healthText.text = $"HP: {player.Health}";
         // treasureText.text = $"Treasure: {player.TreasureCount}";
 
@@ -126,8 +126,13 @@ public class GameController : MonoBehaviour
 
     void Log(string message)
     {
-        logMessage += message + "\n";
-        Debug.Log(message);
+        narrator.Say(message);
+        Debug.Log("Say: " + message);
+    }
+
+    void ClearLog()
+    {
+        narrator.Clear();
     }
 
     void LogRoom(Room room)
