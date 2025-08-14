@@ -4,10 +4,14 @@ using UnityEngine;
 public class GameRules
 {
     private Dungeon dungeon;
+    private Player player;
+    private RollingTextHistory narrator;
 
-    public GameRules(Dungeon dungeon)
+    public GameRules(Dungeon dungeon, Player player, RollingTextHistory narrator)
     {
         this.dungeon = dungeon;
+        this.player = player;
+        this.narrator = narrator;
     }
 
     public void OnActorEnterRoom(Actor actor)
@@ -23,9 +27,16 @@ public class GameRules
             return;
         }
 
-        if (room.HasTreasure)
+        // Player-only instant pickups
+        if (actor is Player player)
         {
-            actor.HandleTreasure();
+            if (room.HasTreasure)
+            {
+                // actor.HandleTreasure();
+                Treasure treasure = room.GetTreasure();
+                narrator.Say($"You find {treasure.Description} in the room.");
+                player.AddScore(treasure.Value);
+            }
         }
     }
 }

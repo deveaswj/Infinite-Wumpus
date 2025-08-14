@@ -44,12 +44,10 @@ public class Player : Actor
 
     public bool IsDead() => Health == 0;
 
-    public void CollectTreasure()
+    public int AddScore(int amount)
     {
-        // current room SetTreasure(false)
-        TreasureCount += 1;
-        dungeon.GetRoom(this).SetTreasure(false);
-        Score += 1;
+        Score += amount;
+        return Score;
     }
 
     public void UseDonut()
@@ -78,20 +76,5 @@ public class Player : Actor
     public override void HandlePit()
     {
         // FallTo(CurrentLevel, CurrentRoomID);
-    }
-
-    public override void HandleTreasure()
-    {
-        CollectTreasure();
-    }
-
-    public override void HandleDonut()
-    {
-        CollectDonut();
-    }
-
-    public override void HandleWumpus()
-    {
-        throw new System.NotImplementedException();
     }
 }

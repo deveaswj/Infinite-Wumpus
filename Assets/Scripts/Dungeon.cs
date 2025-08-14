@@ -60,18 +60,7 @@ public class Dungeon
         newLevel.SetStairsDown(stairsRoomId, true);
 
         // Add features
-
-        // Add pits
-        newLevel.AddPits();
-
-        // Add treasures
-        newLevel.AddTreasures();
-
-        // Add donuts
-        newLevel.AddDonuts();
-
-        // Add wumpus
-        newLevel.AddWumpus();
+        newLevel.AddFeatures();
 
         return newLevel;
     }
