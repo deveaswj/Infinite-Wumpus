@@ -28,7 +28,7 @@ public abstract class Actor : ILocatable
         Room room = dungeon.GetRoom(levelID, roomID); // Ensure exists
         CurrentLevel = levelID;
         CurrentRoomID = roomID;
-        Debug.Log("MOveTo -> level " + levelID + ", room " + roomID);
+        Debug.Log("MoveTo -> level " + levelID + ", room " + roomID);
         return room;
     }
 
@@ -45,6 +45,8 @@ public abstract class Actor : ILocatable
 
     public void Heal() => Heal(1);
     public void Heal(int amount) => Health = Mathf.Min(Health + amount, MaxHealth);
+
+    public bool IsInjured() => Health < MaxHealth;
 
     public bool IsDead() => Health == 0;
 

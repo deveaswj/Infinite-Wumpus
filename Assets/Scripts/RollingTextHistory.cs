@@ -44,13 +44,23 @@ public class RollingTextHistory : MonoBehaviour
 
     public void Say(Queue<string> newEntries)
     {
-        // this doesn't dequeue newEntries, but that's fine
-        foreach (string entry in newEntries)
+        string entry = "";
+
+        // Dequeue newEntries and Say each one
+        while (newEntries.Count > 0)
         {
-            Debug.Log("Say queued entry: " + entry);
+            entry = newEntries.Dequeue();
+            Debug.Log("Say dequeued entry: " + entry);
             Say(entry);
         }
-    }
+
+        // // this doesn't dequeue newEntries, but that's fine
+            // foreach (string entry in newEntries)
+            // {
+            //     Debug.Log("Say queued entry: " + entry);
+            //     Say(entry);
+            // }
+        }
 
     public void ClearHistory()
     {

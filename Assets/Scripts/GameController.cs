@@ -12,16 +12,25 @@ public class GameController : MonoBehaviour
     public Button stairsUpButton;
     public Button stairsDownButton;
 
+    public GameObject playButtons;
+
     public TMP_Text healthText;
     public TMP_Text scoreText;
 
     private Player player;
     private Dungeon dungeon;
     private GameRules gameRules;
-//    private Room currentRoom;
+    //    private Room currentRoom;
 
     void Start()
     {
+        StartGame();
+    }
+
+    void StartGame()
+    {
+        SetPlayMode();
+
         dungeon = new Dungeon();
         player = new Player(dungeon);
         gameRules = new GameRules(dungeon, player, narrator);
@@ -29,6 +38,11 @@ public class GameController : MonoBehaviour
         player.EnterDungeon();  // calls MoveTo(0,0)
         Log("You awaken in a dark room...");
         UpdateUI();
+    }
+
+    public void OnPlayButton()
+    {
+        StartGame();
     }
 
     public void OnExitButton(int index)
@@ -120,7 +134,7 @@ public class GameController : MonoBehaviour
         if (player.IsDead())
         {
             Log("You have died... Game over.");
-            DisableInput();
+            SetGameOverMode();
         }
     }
 
@@ -141,8 +155,18 @@ public class GameController : MonoBehaviour
         Log(message);
     }
 
-    void DisableInput()
+    void SetPlayMode()
     {
+        playButtons.SetActive(false);
+        foreach (var btn in exitButtons)
+            btn.interactable = true;
+        stairsUpButton.interactable = true;
+        stairsDownButton.interactable = true;
+    }
+
+    void SetGameOverMode()
+    {
+        playButtons.SetActive(true);
         foreach (var btn in exitButtons)
             btn.interactable = false;
         stairsUpButton.interactable = false;
