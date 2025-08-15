@@ -29,7 +29,9 @@ public class Room
     public IReadOnlyList<Actor> Occupants => occupants;
     public bool IsOccupied => occupants.Count > 0;
 
-    public bool IsSafe => !HasPit && !HasBats;
+    public bool IsSafe() => !HasPit && !HasBats;
+
+    public List<Room> SafeExits => exits.FindAll(x => x.IsSafe());
 
     // Stairs up/down always lead to the same Room number on the DungeonLevel above/below this one
     // Pit always leads to the same Room number on the DungeonLevel below this one
@@ -40,6 +42,7 @@ public class Room
     public bool HasDonut { get; private set; } = false;
     public bool HasBats { get; private set; } = false;
     public bool HasTreasure { get; private set; } = false;
+    public bool HasTorch { get; private set; } = false;
 
     Treasure treasure = null;
     public Treasure Treasure { get => treasure; }
@@ -74,6 +77,7 @@ public class Room
     public void SetPit(bool value) => HasPit = value;
     public void SetDonut(bool value) => HasDonut = value;
     public void SetBats(bool value) => HasBats = value;
+    public void SetTorch(bool value) => HasTorch = value;
 
     // public void SetWumpus(bool value) => HasWumpus = value;
 
@@ -90,7 +94,7 @@ public class Room
         HasTreasure = value;
     }
 
-    // Calling GetTreasure clears the treasure flag and returns the value
+    // Calling this clears the treasure flag and returns the value
     public Treasure ClaimTreasure()
     {
         Treasure roomTreasure = treasure;

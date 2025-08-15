@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -69,31 +70,66 @@ public class DungeonLevel
 
     public void AddPits(List<int> excludeRoomIDs)
     {
-        // Add pits to 1-3 rooms that have no stairs and no pit, and no pit in the level above
+        // Add pits to 1-3 rooms that have no stairs and no pit, and (via excludeRoomIDs) no pit in the level above
         int numPits = Random.Range(1, 4);
         while (numPits > 0)
         {
             int pitRoomID = Random.Range(0, NUM_ROOMS);
-            // loop if pitRoomID is in excludeRoomIDs
-            if (excludeRoomIDs.Contains(pitRoomID))
+            // loop if we're trying to put a pit in the starting room
+            if (ID == 0 && pitRoomID == 0)
             {
-                Debug.Log("Level " + ID + ": Pick again - Can't add pit to room " + pitRoomID);
+                Debug.Log("Level " + ID + ": Pick again - Can't pit the starting room");
                 continue;
             }
+            // loop if pitRoomID is in excludeRoomIDs
+                if (excludeRoomIDs.Contains(pitRoomID))
+                {
+                    Debug.Log("Level " + ID + ": Pick again - Can't pit excluded room " + pitRoomID);
+                    continue;
+                }
             Room pitRoom = GetRoom(pitRoomID);
             if (!pitRoom.HasAnyStairs() && !pitRoom.HasPit)
+                {
+                    if (!IsSafeToPlacePit(pitRoom))
+                    {
+                        Debug.Log("Level " + ID + ": Pick again - Isolation would occur - room " + pitRoomID);
+                        continue;
+                    }
+                    Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomID);
+                    pitRoom.SetPit(true);
+                    pitRoomIDs.Add(pitRoomID);
+                    numPits--;
+                }
+        }
+    }
+
+    private bool IsSafeToPlacePit(Room candidate)
+    {
+        // Rule 1: Candidate must not already have stairs or a pit
+        if (candidate.HasAnyStairs() || candidate.HasPit)
+            return false;
+
+        // Rule 2: Placing a pit here must not isolate any neighbor
+        foreach (Room neighbor in candidate.Exits)
+        {
+            if (neighbor.HasPit) continue; // Already isolated
+
+            int safeExits = neighbor.Exits.Count(exit => !exit.HasPit && exit != candidate);
+            if (safeExits == 0)
             {
-                Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomID);
-                pitRoom.SetPit(true);
-                pitRoomIDs.Add(pitRoomID);
-                numPits--;
+                // This neighbor would be isolated if candidate becomes a pit
+                return false;
             }
         }
+
+        return true;
     }
 
     public void AddTreasures()
     {
         // Add treasures to 1-3 rooms that have no pit and no treasure
+        // NOTE: It is presently theoretically possible for a room with stairs to be surrounded by rooms with pits.
+        // This is something that I ought to prevent, as it makes it impossible to progress through the dungeon.
         int numTreasures = Random.Range(1, 4);
         while (numTreasures > 0)
         {
@@ -110,8 +146,15 @@ public class DungeonLevel
 
     public void AddDonuts()
     {
-        // Add donuts to 0-3 rooms that have no pit and no donut
-        int numDonuts = Random.Range(0, 4);
+        // If this level number is divisible by the divisor, always add at least one donut
+        // Scale the divisor: Up to level 10, divisor is 3, up to level 20, divisor is 4, beyond 30, divisor is 5
+        //
+        //
+        //
+        int divisor = (ID < 10 ? 3 : ID < 20 ? 4 : 5);
+        int minDonuts = ID % divisor == 0 ? 1 : 0;
+        // Add donuts to 0/1-3 rooms that have no pit and no donut
+        int numDonuts = Random.Range(minDonuts, 4);
         while (numDonuts > 0)
         {
             int donutRoomId = Random.Range(0, NUM_ROOMS);
@@ -221,8 +264,9 @@ public class DungeonLevel
     public Room GetRandomSafeRoom()
     {
         Room randomRoom = GetRandomRoom();
-        while (!randomRoom.IsSafe)
+        while (!randomRoom.IsSafe())
             randomRoom = GetRandomRoom();
+        Debug.Log("GetRandomSafeRoom: Room " + randomRoom.ID + (randomRoom.IsSafe() ? " is safe" : " is not safe"));
         return randomRoom;
     }
 

@@ -9,6 +9,8 @@ public class GameRules
 
     private StringQueue logQueue = new StringQueue(10);
 
+    private bool showInjuryMessage = false;
+
     public GameRules(Dungeon dungeon, Player player, RollingTextHistory narrator)
     {
         this.dungeon = dungeon;
@@ -40,18 +42,19 @@ public class GameRules
                     // "game over" message is handled elsewhere
                     return;
                 }
-                narrator.Say($"You recover in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
-                if (player.HasDonut)
-                {
-                    player.UseDonut();
-                }
+                showInjuryMessage = true;
+                narrator.Say($"You find yourself in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
+                // if (player.HasDonut)
+                // {
+                //     player.UseDonut();
+                // }
                 OnActorEnterRoom(player);
                 return;
             }
 
             if (room.HasBats)
             {
-                narrator.Say("You are attacked by bats, and stumble around...");
+                narrator.Say("You are swarmed by bats, and stumble around...");
                 DungeonLevel playerLevel = dungeon.GetLevel(player);
                 // first move the bats to a new room
                 playerLevel.MoveBats(room);
@@ -61,6 +64,22 @@ public class GameRules
                 narrator.Say($"You recover in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
                 OnActorEnterRoom(player);
                 return;
+            }
+        }
+
+        // Player-only auto-eat donut if injured
+        if (isPlayer && player.IsInjured())
+        {
+            if (showInjuryMessage)
+            {
+                narrator.Say("You are injured!");
+                showInjuryMessage = false;
+            }
+
+            if (player.HasDonut)
+            {
+                player.UseDonut();
+                narrator.Say($"You eat your donut and feel{(player.IsInjured() ? " a little" : " all")} better.");
             }
         }
 
@@ -105,20 +124,20 @@ public class GameRules
             logQueue.Enqueue("The bats here flap and screech as you enter!");
         if (room.HasTreasure)
             // logQueue.Enqueue($"You see {room.Treasure.Description} here.");
-        if (room.HasPit)
-            logQueue.Enqueue("There is no floor here!");
+            if (room.HasPit)
+                logQueue.Enqueue("There is no floor here!");
 
         // Environmental cues from exits
+        int pitCount = 0;
+        int batCount = 0;
         foreach (var exit in room.Exits)
         {
-            if (exit.HasPit)
-            {
-                logQueue.Enqueue("You feel a breeze nearby.");
-            }
-            else if (exit.HasBats)
-            {
-                logQueue.Enqueue("You hear flapping sounds nearby.");
-            }
+            pitCount += exit.HasPit ? 1 : 0;
+            batCount += exit.HasBats ? 1 : 0;
         }
+        if (pitCount > 0)
+            logQueue.Enqueue($"You feel a {(pitCount > 1 ? "strong wind" : "breeze")} nearby.");
+        if (batCount > 1)
+            logQueue.Enqueue($"You hear {(batCount > 1 ? "a cacophony of" : "some")} flapping sounds nearby.");
     }
 }
