@@ -1980,7 +1980,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &694155231
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2536,7 +2536,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &921256217
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2788,7 +2788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1040557708
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3124,7 +3124,7 @@ GameObject:
   - component: {fileID: 1174158291}
   - component: {fileID: 1174158290}
   m_Layer: 5
-  m_Name: E
+  m_Name: Rest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3145,10 +3145,10 @@ RectTransform:
   - {fileID: 1598214780}
   m_Father: {fileID: 1040557708}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1538, y: -50}
-  m_SizeDelta: {x: 324, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1174158290
 MonoBehaviour:
@@ -3189,11 +3189,23 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 1174158291}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1923401314}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+        m_MethodName: OnRestButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1174158291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3467,7 +3479,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1413978103
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4229,7 +4241,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1746913852
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4898,6 +4910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbb211a824766434bb66b0d1293a3bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dungeonSeed: 0
   narrator: {fileID: 2008455553}
   exitButtons:
   - {fileID: 260295333}
@@ -4905,6 +4918,7 @@ MonoBehaviour:
   - {fileID: 1773252709}
   stairsUpButton: {fileID: 745072148}
   stairsDownButton: {fileID: 962186449}
+  restButton: {fileID: 1174158290}
   playButtons: {fileID: 1890496019}
   healthText: {fileID: 1848560736}
   scoreText: {fileID: 228107904}

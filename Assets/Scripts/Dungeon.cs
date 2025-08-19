@@ -7,8 +7,20 @@ public class Dungeon
     private List<DungeonLevel> levels = new();
     // private Room currentRoom;
 
-    public Dungeon()
+    public int Seed { get; private set; } = 0;
+
+    public Dungeon() : this(0) { }
+
+    public Dungeon(int dungeonSeed)
     {
+        Seed = dungeonSeed;
+
+        if (Seed == 0)
+            Seed = Random.Range(int.MinValue, int.MaxValue);
+
+        Random.InitState(Seed);
+        Debug.Log("Dungeon seed: " + Seed);
+
         AddNewLevel(); // Start with one level
     }
 
