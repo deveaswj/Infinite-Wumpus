@@ -20,6 +20,8 @@ public class DungeonLevel
     // (pits should only drop one level)
     List<int> pitRoomIDs = new();
 
+    List<int> batRoomIDs = new();
+
     public DungeonLevel(int levelID)
     {
         ID = levelID;
@@ -147,11 +149,8 @@ public class DungeonLevel
     public void AddDonuts()
     {
         // If this level number is divisible by the divisor, always add at least one donut
-        // Scale the divisor: Up to level 10, divisor is 3, up to level 20, divisor is 4, beyond 30, divisor is 5
-        //
-        //
-        //
-        int divisor = (ID < 10 ? 3 : ID < 20 ? 4 : 5);
+        // Scale the divisor based on the level -- deeper = rarer
+        int divisor = ID < 10 ? 2 : ID < 20 ? 3 : ID < 45 ? 4 : 5;
         int minDonuts = ID % divisor == 0 ? 1 : 0;
         // Add donuts to 0/1-3 rooms that have no pit and no donut
         int numDonuts = Random.Range(minDonuts, 4);
@@ -180,6 +179,9 @@ public class DungeonLevel
     {
         // Add (numBats) bats to rooms that have no bats nor stairs
         // Bats can coexist with pits! They can fly!
+        //
+        // Note: this could place bats in the player's room
+        //
         while (numBats > 0)
         {
             int batsRoomId = Random.Range(0, NUM_ROOMS);
@@ -188,6 +190,7 @@ public class DungeonLevel
             {
                 Debug.Log("Level " + ID + ": Adding bats to room " + batsRoomId);
                 batsRoom.SetBats(true);
+                batRoomIDs.Add(batsRoomId);
                 numBats--;
             }
         }
@@ -198,10 +201,24 @@ public class DungeonLevel
         if (fromRoom.HasBats)
         {
             fromRoom.SetBats(false);
+            batRoomIDs.Remove(fromRoom.ID);
             AddBats(1);
         }
     }
 
+    public void MoveAllBats()
+    {
+        // copy batRoomIDs because it will be modified
+        List<int> fromRooms = batRoomIDs.ToList();
+        foreach (var roomID in fromRooms)
+        {
+            Room fromRoom = GetRoom(roomID);
+            if (fromRoom.HasBats)
+            {
+                MoveBats(fromRoom);
+            }
+        }
+    }
 
     public void AddWumpus()
     {

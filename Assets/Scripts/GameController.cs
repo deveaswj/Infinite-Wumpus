@@ -5,12 +5,16 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    public int dungeonSeed = 0;
+
     public RollingTextHistory narrator;
 
     // public TMP_Text gameLogText;
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
     public Button stairsUpButton;
     public Button stairsDownButton;
+
+    public Button restButton;
 
     public GameObject playButtons;
 
@@ -31,12 +35,14 @@ public class GameController : MonoBehaviour
     {
         SetPlayMode();
 
-        dungeon = new Dungeon();
+        dungeon = new Dungeon(dungeonSeed);
         player = new Player(dungeon);
         gameRules = new GameRules(dungeon, player, narrator);
 
         player.EnterDungeon();  // calls MoveTo(0,0)
         Log("You awaken in a dark room...");
+
+        gameRules.OnActorEnterRoom(player);  // there might be pits or bats nearby
         UpdateUI();
     }
 
@@ -115,6 +121,20 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void OnRestButton()
+    {
+        Log("You rest for a while... but the bats don't...");
+
+        // Player heals +1, but all live hazards in the level (bats, Wumpus) move
+        player.Heal(1);
+
+        DungeonLevel playerLevel = dungeon.GetLevel(player);
+        playerLevel.MoveAllBats();
+
+        gameRules.OnActorEnterRoom(player);
+        UpdateUI();
+    }
+
     void UpdateUI()
     {
         Room playerRoom = dungeon.GetRoom(player);
@@ -135,6 +155,11 @@ public class GameController : MonoBehaviour
         {
             Log("You have died... Game over.");
             SetGameOverMode();
+        }
+        else
+        {
+            bool isInjured = player.IsInjured();
+            restButton.gameObject.SetActive(isInjured);
         }
     }
 

@@ -1,6 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CompanionType
+{
+    None,
+    Dog,    // barks at Wumpus room
+    Cat,    // "won't go near" pit rooms
+    Owl,    // flies toward bat rooms; eats bats (bats attack then despawn instead of moving to a new room)
+    Rat,    // shows interest in donut rooms; minimum of 2 donuts on new levels while paired
+    Bat,    // flutters toward bat rooms; bats don't attack; no pit fall damage while paired (but bat unpairs and stays on its level)
+    Pig,    // oinks at treasure rooms
+    Fox,    // directs player toward safe path & stairs
+    Hen     // small chance to lay a golden egg (treasure) when entering an unvisited room (instead of any existing treasure in room)
+}
+
 public class Player : Actor
 {
     const int MAX_HEALTH = 3;

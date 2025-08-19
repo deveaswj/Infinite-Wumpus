@@ -44,10 +44,6 @@ public class GameRules
                 }
                 showInjuryMessage = true;
                 narrator.Say($"You find yourself in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
-                // if (player.HasDonut)
-                // {
-                //     player.UseDonut();
-                // }
                 OnActorEnterRoom(player);
                 return;
             }
@@ -122,10 +118,10 @@ public class GameRules
             logQueue.Enqueue("You see a flight of stairs heading down.");
         if (room.HasBats)
             logQueue.Enqueue("The bats here flap and screech as you enter!");
-        if (room.HasTreasure)
+        // if (room.HasTreasure)
             // logQueue.Enqueue($"You see {room.Treasure.Description} here.");
-            if (room.HasPit)
-                logQueue.Enqueue("There is no floor here!");
+        if (room.HasPit)
+            logQueue.Enqueue("There is no floor here!");
 
         // Environmental cues from exits
         int pitCount = 0;
@@ -137,7 +133,7 @@ public class GameRules
         }
         if (pitCount > 0)
             logQueue.Enqueue($"You feel a {(pitCount > 1 ? "strong wind" : "breeze")} nearby.");
-        if (batCount > 1)
+        if (batCount > 0)
             logQueue.Enqueue($"You hear {(batCount > 1 ? "a cacophony of" : "some")} flapping sounds nearby.");
     }
 }
