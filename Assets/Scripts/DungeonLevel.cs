@@ -3,6 +3,14 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum WumpusState
+{
+    None,
+    Asleep,     // Doesn't move; Won't respond if player enters same room (just snores)
+    Idle,       // Doesn't move; Will respond if player enters same room (takes donut or injures player, then flees)
+    Moving      // Moves to neighboring room if possible, else random room (no pit, no torch, no stairs, no player)
+}
+
 public class DungeonLevel
 {
     const int NUM_ROOMS = 20;
@@ -20,7 +28,13 @@ public class DungeonLevel
     // (pits should only drop one level)
     List<int> pitRoomIDs = new();
 
+    // Keep track of which rooms have bats
+    // so we can MoveAllBats w/o having to look up their locations
     List<int> batRoomIDs = new();
+
+    // the state of the wumpus (if one exists) on THIS level
+    public WumpusState WumpusState = WumpusState.None;
+    public int WumpusRoomID = -1;
 
     public DungeonLevel(int levelID)
     {
@@ -68,6 +82,7 @@ public class DungeonLevel
         AddBats();
         AddTreasures();
         AddDonuts();
+        AddWumpus();
     }
 
     public void AddPits(List<int> excludeRoomIDs)
@@ -84,24 +99,24 @@ public class DungeonLevel
                 continue;
             }
             // loop if pitRoomID is in excludeRoomIDs
-                if (excludeRoomIDs.Contains(pitRoomID))
-                {
-                    Debug.Log("Level " + ID + ": Pick again - Can't pit excluded room " + pitRoomID);
-                    continue;
-                }
+            if (excludeRoomIDs.Contains(pitRoomID))
+            {
+                Debug.Log("Level " + ID + ": Pick again - Can't pit excluded room " + pitRoomID);
+                continue;
+            }
             Room pitRoom = GetRoom(pitRoomID);
             if (!pitRoom.HasAnyStairs() && !pitRoom.HasPit)
+            {
+                if (!IsSafeToPlacePit(pitRoom))
                 {
-                    if (!IsSafeToPlacePit(pitRoom))
-                    {
-                        Debug.Log("Level " + ID + ": Pick again - Isolation would occur - room " + pitRoomID);
-                        continue;
-                    }
-                    Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomID);
-                    pitRoom.SetPit(true);
-                    pitRoomIDs.Add(pitRoomID);
-                    numPits--;
+                    Debug.Log("Level " + ID + ": Pick again - Isolation would occur - room " + pitRoomID);
+                    continue;
                 }
+                Debug.Log("Level " + ID + ": Adding pit to room " + pitRoomID);
+                pitRoom.SetPit(true);
+                pitRoomIDs.Add(pitRoomID);
+                numPits--;
+            }
         }
     }
 
@@ -222,10 +237,58 @@ public class DungeonLevel
 
     public void AddWumpus()
     {
-        //
-        //  #TODO
-        //
+        // If this level ID is a nonzero multiple of five, add a wumpus
+        // to a room that has no: pit, torch, or stairs
+        // if (ID > 0 && ID % 5 == 0)
+        if (ID % 5 == 0)
+        {
+            int wumpusRoomId = -1;
+            Room wumpusRoom = null;
+            bool isValidRoom = false;
+            int attempts = 0;
+
+            WumpusState = WumpusState.None;
+            WumpusRoomID = wumpusRoomId;
+
+            while (!isValidRoom && attempts < 16)
+            {
+                wumpusRoomId = Random.Range(0, NUM_ROOMS);
+                wumpusRoom = GetRoom(wumpusRoomId);
+                isValidRoom = !wumpusRoom.HasPit && !wumpusRoom.HasTorch && !wumpusRoom.HasAnyStairs();
+                // is the player already in this room?
+                // isValidRoom = isValidRoom && !player.IsInRoom(wumpusRoomId);
+                // this class has no player reference, so we can't check if the player is in the room
+            }
+            if (isValidRoom)
+            {
+                // we have a valid room to place the wumpus into
+                Debug.Log("Level " + ID + ": Adding wumpus to room " + wumpusRoomId);
+                wumpusRoom.SetWumpus(true);
+                WumpusState = WumpusState.Idle;
+                WumpusRoomID = wumpusRoomId;
+            }
+            else
+            {
+                Debug.Log("Level " + ID + ": Failed to add wumpus - too many attempts");
+            }
+        }
         return;
+    }
+
+    public void MoveWumpus()
+    {
+        if (WumpusRoomID == -1)
+        {
+            return;
+        }
+
+        Room fromRoom = GetRoom(WumpusRoomID);
+        if (fromRoom.HasWumpus)
+        {
+            fromRoom.SetWumpus(false);
+            // Get a new room to place the wumpus into (no pit, no torch, no stairs, no player)
+            AddWumpus();
+        }
     }
 
     void AssignExits()
