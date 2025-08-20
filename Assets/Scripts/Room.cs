@@ -42,6 +42,7 @@ public class Room
     public bool HasDonut { get; private set; } = false;
     public bool HasBats { get; private set; } = false;
     public bool HasTreasure { get; private set; } = false;
+    public bool HasWumpus { get; private set; } = false;
     public bool HasTorch { get; private set; } = false;
 
     Treasure treasure = null;
@@ -77,9 +78,8 @@ public class Room
     public void SetPit(bool value) => HasPit = value;
     public void SetDonut(bool value) => HasDonut = value;
     public void SetBats(bool value) => HasBats = value;
+    public void SetWumpus(bool value) => HasWumpus = value;
     public void SetTorch(bool value) => HasTorch = value;
-
-    // public void SetWumpus(bool value) => HasWumpus = value;
 
     public void SetTreasure(bool value)
     {
