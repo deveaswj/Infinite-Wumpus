@@ -130,6 +130,11 @@ public class GameController : MonoBehaviour
 
         DungeonLevel playerLevel = dungeon.GetLevel(player);
         playerLevel.MoveAllBats();
+        if (playerLevel.WumpusState == WumpusState.Idle)
+        {
+            Log("... and neither does the Wumpus.");
+            playerLevel.MoveWumpus();
+        }
 
         gameRules.OnActorEnterRoom(player);
         UpdateUI();
