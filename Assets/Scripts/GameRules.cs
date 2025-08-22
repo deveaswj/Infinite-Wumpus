@@ -22,6 +22,7 @@ public class GameRules
     public void OnActorEnterRoom(Actor actor)
     {
         var room = dungeon.GetRoom(actor);
+        var level = dungeon.GetLevel(actor);
 
         // string roomDescription = dungeon.themeLibrary.GetRoomDescription...
 
@@ -48,14 +49,50 @@ public class GameRules
                 return;
             }
 
+            //  What shall we do if there are bats AND a Wumpus in the room?
+            //  For now, just prevent bats and Wumpus from coexisting in a room.
+
+            // Wumpus handling
+            if (room.HasWumpus)
+            {
+                if (level.WumpusState == WumpusState.Asleep)
+                {
+                    narrator.Say("The Wumpus here is curled up and snoring loudly.");
+                }
+                else
+                {
+                    // if player has a donut, Wumpus steals the donut
+                    // otherwise, Wumpus attacks the player (injures them)
+                    // either way, move the wumpus to a new room
+                    if (player.HasDonut)
+                    {
+                        narrator.Say("The Wumpus is here! It grabs your donut and runs away with it.");
+                        player.LoseDonut();
+                    }
+                    else    // player doesn't have a donut
+                    {
+                        narrator.Say("The Wumpus is here! It shrieks hungrily and attacks you!");
+                        player.TakeDamage(1);
+                        if (player.IsDead())
+                        {
+                            // "game over" message is handled elsewhere
+                            return;
+                        }
+                        narrator.Say("By the time you recover, the Wumpus is gone.");
+                        showInjuryMessage = true;
+                    }
+                    // move the wumpus to a new room
+                    level.MoveWumpus();
+                }
+            }
+
             if (room.HasBats)
             {
                 narrator.Say("You are swarmed by bats, and stumble around...");
-                DungeonLevel playerLevel = dungeon.GetLevel(player);
                 // first move the bats to a new room
-                playerLevel.MoveBats(room);
+                level.MoveBats(room);
                 // now move player to a random safe room on the level -- no bats, no pits
-                Room safeRoom = playerLevel.GetRandomSafeRoom();
+                Room safeRoom = level.GetRandomSafeRoom();
                 player.MoveTo(safeRoom);
                 narrator.Say($"You recover in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
                 OnActorEnterRoom(player);
@@ -110,6 +147,7 @@ public class GameRules
     void QueueRoomDescription()
     {
         Room room = dungeon.GetRoom(player);
+        DungeonLevel level = dungeon.GetLevel(player);
 
         // Direct observations
         if (room.HasStairsUp)
@@ -126,11 +164,16 @@ public class GameRules
         // Environmental cues from exits
         int pitCount = 0;
         int batCount = 0;
+        bool hasWumpus = false;
         foreach (var exit in room.Exits)
         {
+            if (exit.HasWumpus)
+                hasWumpus = true;
             pitCount += exit.HasPit ? 1 : 0;
             batCount += exit.HasBats ? 1 : 0;
         }
+        if (hasWumpus)
+            logQueue.Enqueue("You smell something terrible nearby.");
         if (pitCount > 0)
             logQueue.Enqueue($"You feel a {(pitCount > 1 ? "strong wind" : "breeze")} nearby.");
         if (batCount > 0)

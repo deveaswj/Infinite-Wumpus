@@ -192,7 +192,7 @@ public class DungeonLevel
 
     public void AddBats(int numBats)
     {
-        // Add (numBats) bats to rooms that have no bats nor stairs
+        // Add (numBats) bats to rooms that have no bats, stairs, or Wumpus
         // Bats can coexist with pits! They can fly!
         //
         // Note: this could place bats in the player's room
@@ -201,7 +201,7 @@ public class DungeonLevel
         {
             int batsRoomId = Random.Range(0, NUM_ROOMS);
             Room batsRoom = GetRoom(batsRoomId);
-            if (!batsRoom.HasBats && !batsRoom.HasAnyStairs())
+            if (!batsRoom.HasBats && !batsRoom.HasWumpus && !batsRoom.HasAnyStairs())
             {
                 Debug.Log("Level " + ID + ": Adding bats to room " + batsRoomId);
                 batsRoom.SetBats(true);
@@ -254,7 +254,7 @@ public class DungeonLevel
             {
                 wumpusRoomId = Random.Range(0, NUM_ROOMS);
                 wumpusRoom = GetRoom(wumpusRoomId);
-                isValidRoom = !wumpusRoom.HasPit && !wumpusRoom.HasTorch && !wumpusRoom.HasAnyStairs();
+                isValidRoom = !wumpusRoom.HasPit && !wumpusRoom.HasBats && !wumpusRoom.HasTorch && !wumpusRoom.HasAnyStairs();
                 // is the player already in this room?
                 // isValidRoom = isValidRoom && !player.IsInRoom(wumpusRoomId);
                 // this class has no player reference, so we can't check if the player is in the room
