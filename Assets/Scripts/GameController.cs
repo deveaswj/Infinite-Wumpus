@@ -1,5 +1,4 @@
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +8,6 @@ public class GameController : MonoBehaviour
 
     public RollingTextHistory narrator;
 
-    // public TMP_Text gameLogText;
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
     public Button stairsUpButton;
     public Button stairsDownButton;
@@ -24,12 +22,13 @@ public class GameController : MonoBehaviour
     private Player player;
     private Dungeon dungeon;
     private GameRules gameRules;
-    //    private Room currentRoom;
 
     void Start()
     {
         StartGame();
     }
+
+    // --- Game flow --------------------------------------
 
     void StartGame()
     {
@@ -40,9 +39,22 @@ public class GameController : MonoBehaviour
         gameRules = new GameRules(dungeon, player, narrator);
 
         player.EnterDungeon();  // calls MoveTo(0,0)
+
+        ClearLog();
         Log("You awaken in a dark room...");
 
-        gameRules.OnActorEnterRoom(player);  // there might be pits or bats nearby
+        gameRules.OnPlayerEnterRoom(player);  // there might be pits or bats nearby
+        UpdateUI();
+    }
+
+    private void MovePlayerTo(Room room) => MovePlayerTo(room, null);
+
+    private void MovePlayerTo(Room room, string transitionText)
+    {
+        ClearLog();
+        if (transitionText != null) Log(transitionText);
+        player.MoveTo(room.Level, room.ID);
+        gameRules.OnPlayerEnterRoom(player);
         UpdateUI();
     }
 
@@ -58,20 +70,15 @@ public class GameController : MonoBehaviour
         if (index >= playerRoom.Exits.Count)
         {
             Log("That way is blocked.");
+            UpdateUI();
         }
         else
         {
             Room nextRoom = playerRoom.Exits[index];
-            int level = nextRoom.Level;
-            int id = nextRoom.ID;
-            ClearLog();
-            Log("You head to " + "level " + level + ", room " + id);
-            player.MoveTo(nextRoom.Level, nextRoom.ID);
-            gameRules.OnActorEnterRoom(player);
+            // , $"You head to level {nextRoom.Level}, room {nextRoom.ID}"
+            MovePlayerTo(nextRoom);
         }
-        UpdateUI();
     }
-
 
     public void OnUpstairsButton()
     {
@@ -81,13 +88,7 @@ public class GameController : MonoBehaviour
         {
             player.Ascend();
             Room nextRoom = dungeon.GetRoom(player);
-
-            ClearLog();
-            Log("You climb the stairs...");
-            LogRoom(nextRoom);
-
-            gameRules.OnActorEnterRoom(player);
-            UpdateUI();
+            MovePlayerTo(nextRoom, "You ascend the stairs...");
         }
         else
         {
@@ -105,13 +106,7 @@ public class GameController : MonoBehaviour
         {
             player.Descend();
             Room nextRoom = dungeon.GetRoom(player);
-
-            ClearLog();
-            Log("You descend the stairs...");
-            LogRoom(nextRoom);
-
-            gameRules.OnActorEnterRoom(player);
-            UpdateUI();
+            MovePlayerTo(nextRoom, "You descend the stairs...");
         }
         else
         {
@@ -136,9 +131,12 @@ public class GameController : MonoBehaviour
             playerLevel.MoveWumpus();
         }
 
-        gameRules.OnActorEnterRoom(player);
+        gameRules.OnPlayerEnterRoom(player);
         UpdateUI();
     }
+
+
+    // --- UI ---------------------------------------------
 
     void UpdateUI()
     {
@@ -168,23 +166,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void Log(string message)
-    {
-        narrator.Say(message);
-        Debug.Log("Say: " + message);
-    }
-
-    void ClearLog()
-    {
-        narrator.ClearHistory();
-    }
-
-    void LogRoom(Room room)
-    {
-        string message = "You are in room " + room.ID + " (level " + room.Level + ")";
-        Log(message);
-    }
-
     void SetPlayMode()
     {
         playButtons.SetActive(false);
@@ -202,4 +183,21 @@ public class GameController : MonoBehaviour
         stairsUpButton.interactable = false;
         stairsDownButton.interactable = false;
     }
+
+
+    // --- Logging ----------------------------------------
+
+    void Log(string message)
+    {
+        narrator.Say(message);
+        Debug.Log("Say: " + message);
+    }
+
+    void ClearLog()
+    {
+        narrator.ClearHistory();
+        Debug.Log("Log cleared");
+    }
+
+
 }

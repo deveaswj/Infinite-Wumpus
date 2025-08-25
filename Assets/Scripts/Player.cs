@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum CompanionType
@@ -61,19 +60,5 @@ public class Player : Actor
             Health = Mathf.Min(Health + 1, MAX_HEALTH);
         }
     }
-
-    // public void CollectDonut()
-    // {
-    //     // don't attempt to collect donut if you're already carrying one
-    //     if (HasDonut) return;
-
-    //     // if the current room has a donut, collect it
-    //     Room currentRoom = dungeon.GetRoom(this);
-    //     if (currentRoom.HasDonut)
-    //     {
-    //         HasDonut = true;
-    //         currentRoom.SetDonut(false);
-    //     }
-    // }
 
 }
