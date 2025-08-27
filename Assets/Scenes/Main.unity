@@ -4912,6 +4912,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dungeonSeed: 0
   narrator: {fileID: 2008455553}
+  cheatMode: 1
   exitButtons:
   - {fileID: 260295333}
   - {fileID: 748983067}

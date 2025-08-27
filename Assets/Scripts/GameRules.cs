@@ -5,7 +5,8 @@ using UnityEngine;
 public class GameRules
 {
     // determines whether to show hazard locations in the text
-    public bool cheatMode = false;
+    public bool showHazards = false;    // pits, bats, wumpus
+    public bool showStairs = false;
 
     private Dungeon dungeon;
     private Player player;
@@ -15,16 +16,28 @@ public class GameRules
 
     private bool showInjuryMessage = false;
 
-    public GameRules(Dungeon dungeon, Player player, RollingTextHistory narrator)
+    public GameRules(Dungeon dungeon, Player player, RollingTextHistory narrator, bool cheatMode = false)
     {
         this.dungeon = dungeon;
         this.player = player;
         this.narrator = narrator;
+
+        // if the game is in cheat mode, show all locations of hazards and stairs
+        showHazards = cheatMode;
+        showStairs = cheatMode;
+
         logQueue.Clear();
     }
 
     public void OnPlayerEnterRoom(Player player)
     {
+        DungeonLevel playerLevel = dungeon.GetLevel(player);
+        if (!playerLevel.Visited)
+        {
+            if (showHazards) QueueHazardLocs(playerLevel);
+            if (showStairs) QueueStairsLocs(playerLevel);
+            playerLevel.Visited = true;
+        }
         TakePlayerTurn(player);
     }
 
@@ -64,7 +77,7 @@ public class GameRules
         };
         int fallHowIndex = Random.Range(0, fallHowList.Length);
         fallHow = fallHowList[fallHowIndex];
- 
+
         narrator.Say(fallHow);
         player.Fall();
         if (player.IsDead()) return true;
@@ -135,8 +148,9 @@ public class GameRules
     {
         if (!room.HasBats) return false;
         narrator.Say("You are swarmed by bats, and stumble around...");
-        dungeon.GetLevel(player).MoveBats(room);
-        var safeRoom = dungeon.GetLevel(player).GetRandomSafeRoom();
+        DungeonLevel playerLevel = dungeon.GetLevel(player);
+        playerLevel.MoveBats(room);
+        var safeRoom = playerLevel.GetRandomSafeRoom();
         player.MoveTo(safeRoom);
         narrator.Say($"You recover in level {player.CurrentLevel}, room {player.CurrentRoomID}.");
         OnPlayerEnterRoom(player);
@@ -204,7 +218,7 @@ public class GameRules
     {
         // room location debug message
         logQueue.Enqueue("-- You are in room " + room.ID + " (level " + room.Level + ") --");
- 
+
         // Direct observations
         if (room.HasStairsUp) logQueue.Enqueue("You see a flight of stairs heading up.");
         if (room.HasStairsDown) logQueue.Enqueue("You see a flight of stairs heading down.");
@@ -218,5 +232,20 @@ public class GameRules
         if (hasWumpus) logQueue.Enqueue("You smell something terrible nearby.");
         if (pitCount > 0) logQueue.Enqueue($"You feel a {(pitCount > 1 ? "strong wind" : "breeze")} nearby.");
         if (batCount > 0) logQueue.Enqueue($"You hear {(batCount > 1 ? "a cacophony of" : "some")} flapping sounds nearby.");
+    }
+
+    void QueueHazardLocs(DungeonLevel level)
+    {
+        // report on properties from the level: BatRoomIDs, PitRoomIDs, WumpusRoomID
+        if (level.BatRoomIDs.Count > 0) logQueue.Enqueue($"Bats: rooms {string.Join(", ", level.BatRoomIDs)}.");
+        if (level.PitRoomIDs.Count > 0) logQueue.Enqueue($"Pits: rooms {string.Join(", ", level.PitRoomIDs)}.");
+        if (level.WumpusRoomID != -1) logQueue.Enqueue($"Wumpus: room {level.WumpusRoomID}.");
+    }
+
+    void QueueStairsLocs(DungeonLevel level)
+    {
+        // report on properties from the level: StairsUpRoomID, StairsDownRoomID
+        if (level.StairsUpRoomID != -1) logQueue.Enqueue($"Stairs Up: room {level.StairsUpRoomID}.");
+        if (level.StairsDownRoomID != -1) logQueue.Enqueue($"Stairs Down: room {level.StairsDownRoomID}.");
     }
 }

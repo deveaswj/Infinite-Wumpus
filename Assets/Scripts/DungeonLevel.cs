@@ -15,6 +15,8 @@ public class DungeonLevel
 
     int ID;
 
+    public bool Visited { get; set; } = false;
+
     Room[] rooms = new Room[NUM_ROOMS];
     public Room[] Rooms => rooms;
 
@@ -47,6 +49,11 @@ public class DungeonLevel
     public List<int> PitRoomIDs
     {
         get => pitRoomIDs;
+    }
+
+    public List<int> BatRoomIDs
+    {
+        get => batRoomIDs;
     }
 
     void GenerateLevel()

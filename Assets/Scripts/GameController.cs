@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour
 {
     public int dungeonSeed = 0;
     public RollingTextHistory narrator;
+    public bool cheatMode = false;
 
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
     public Button stairsUpButton;
@@ -35,7 +36,7 @@ public class GameController : MonoBehaviour
 
         dungeon = new Dungeon(dungeonSeed);
         player = new Player(dungeon);
-        gameRules = new GameRules(dungeon, player, narrator);
+        gameRules = new GameRules(dungeon, player, narrator, cheatMode);
 
         player.EnterDungeon();  // calls MoveTo(0,0)
 
