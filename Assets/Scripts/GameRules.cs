@@ -1,8 +1,12 @@
 // Responsible for enforcing game rules
 using System.Linq;
+using UnityEngine;
 
 public class GameRules
 {
+    // determines whether to show hazard locations in the text
+    public bool cheatMode = false;
+
     private Dungeon dungeon;
     private Player player;
     private RollingTextHistory narrator;
@@ -21,25 +25,47 @@ public class GameRules
 
     public void OnPlayerEnterRoom(Player player)
     {
+        TakePlayerTurn(player);
+    }
+
+    public void TakePlayerTurn(Player player)
+    {
         var room = dungeon.GetRoom(player);
         QueueRoomDescription(room);
         narrator.Say(logQueue.GetQueue());
         logQueue.Clear();
 
         if (HandlePit(player, room)) return;
+
         //  What shall we do if there are bats AND a Wumpus in the room?
         //  For now, just prevent bats and Wumpus from coexisting in a room.
         HandleWumpus(player, room);
         if (HandleBats(player, room)) return;
 
         HandleInjuryAndAutoDonut(player);
+
         HandlePickups(player, room);
     }
 
     private bool HandlePit(Player player, Room room)
     {
         if (!room.HasPit) return false;
-        narrator.Say("You fall into a pit.");
+
+        string fallHow = "You fall headlong into a pit.";
+        // get a random number to choose from a list of various ways to fall into a pit
+        // define the list
+        string[] fallHowList = new string[] {
+            "Arms flailing, you fall into a pit.",
+            "You fall through a pit and land one level down.",
+            "You fall coyote-style into a pit.",
+            "You trip into a dank, breezy pit.",
+            "As you fall, you briefly reconsider your life choices.",
+            "You fall headlong into a pit."
+        };
+        int fallHowIndex = Random.Range(0, fallHowList.Length);
+        fallHow = fallHowList[fallHowIndex];
+ 
+        narrator.Say(fallHow);
         player.Fall();
         if (player.IsDead()) return true;
 
@@ -51,18 +77,34 @@ public class GameRules
 
     private void HandleWumpus(Player player, Room room)
     {
+        DungeonLevel playerLevel = dungeon.GetLevel(player);
+
+        if (playerLevel.WumpusState == WumpusState.None) return;
+
+        // if the Wumpus is asleep (anywhere), update its alarm (wake up if needed)
+        if (playerLevel.WumpusState == WumpusState.Asleep)
+        {
+            playerLevel.UpdateWumpusAlarm();
+        }
+
+        // if the Wumpus isn't here, return
         if (!room.HasWumpus) return;
 
-        if (dungeon.GetLevel(player).WumpusState == WumpusState.Asleep)
+        // if the Wumpus is here but asleep, tell the player and return
+        if (playerLevel.WumpusState == WumpusState.Asleep)
         {
             narrator.Say("The Wumpus here is curled up and snoring loudly.");
             return;
         }
 
+        bool moveWumpus = true;
+
         if (player.HasDonut)
         {
             narrator.Say("The Wumpus grabs your donut and runs away!");
             player.LoseDonut();
+            // put the Wumpus to sleep before moving it
+            playerLevel.SleepWumpus(5);
         }
         else
         {
@@ -70,11 +112,23 @@ public class GameRules
             player.TakeDamage(1);
             if (!player.IsDead())
             {
-                narrator.Say("By the time you recover, the Wumpus is gone.");
                 showInjuryMessage = true;
+
+                // roll to see if we move the Wumpus
+                int roll = Random.Range(1, 7); // D6
+                moveWumpus = roll > 3;
+                if (moveWumpus)
+                {
+                    narrator.Say("By the time you recover, the Wumpus is gone.");
+                }
+                else
+                {
+                    narrator.Say("It looms over you, growling and drooling and stinking.");
+                }
             }
         }
-        dungeon.GetLevel(player).MoveWumpus();
+
+        if (moveWumpus) playerLevel.MoveWumpus();
     }
 
     private bool HandleBats(Player player, Room room)
@@ -128,6 +182,23 @@ public class GameRules
         }
     }
 
+    public void OnPlayerRest()
+    {
+        // Player heals +1, but all live hazards in the level (bats, Wumpus) move
+        player.Heal(1);
+
+        narrator.Say("You rest for a while... but the bats don't...");
+
+        DungeonLevel playerLevel = dungeon.GetLevel(player);
+        playerLevel.MoveAllBats();
+
+        // move the Wumpus if it's idle (ignore if it's asleep)
+        if (playerLevel.WumpusState == WumpusState.Idle)
+        {
+            narrator.Say("... and neither does the Wumpus.");
+            playerLevel.MoveWumpus();
+        }
+    }
 
     void QueueRoomDescription(Room room)
     {

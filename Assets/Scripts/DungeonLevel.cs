@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum WumpusState
 {
     None,
     Asleep,     // Doesn't move; Won't respond if player enters same room (just snores)
-    Idle,       // Doesn't move; Will respond if player enters same room (takes donut or injures player, then flees)
-    Moving      // Moves to neighboring room if possible, else random room (no pit, no torch, no stairs, no player)
+    Idle        // Doesn't move; Will respond if player enters same room (takes donut or injures player, then flees)
 }
 
 public class DungeonLevel
@@ -35,6 +33,7 @@ public class DungeonLevel
     // the state of the wumpus (if one exists) on THIS level
     public WumpusState WumpusState = WumpusState.None;
     public int WumpusRoomID = -1;
+    private int wumpusAlarm = 0;
 
     public DungeonLevel(int levelID)
     {
@@ -288,6 +287,40 @@ public class DungeonLevel
             fromRoom.SetWumpus(false);
             // Get a new room to place the wumpus into (no pit, no torch, no stairs, no player)
             AddWumpus();
+        }
+    }
+
+    public void SleepWumpus(int numTurns)
+    {
+        if (WumpusRoomID == -1) return;
+        Debug.Log("Level " + ID + ": Putting the Wumpus to sleep");
+        WumpusState = WumpusState.Asleep;
+        SetWumpusAlarm(numTurns);
+    }
+
+    public void WakeWumpus()
+    {
+        if (WumpusRoomID == -1) return;
+        Debug.Log("Level " + ID + ": Waking up the Wumpus");
+        WumpusState = WumpusState.Idle;
+    }
+
+    public void SetWumpusAlarm(int newAlarm)
+    {
+        if (WumpusRoomID == -1) return;
+        wumpusAlarm = newAlarm;
+    }
+    public void UpdateWumpusAlarm()
+    {
+        if (WumpusRoomID == -1) return;
+        if (wumpusAlarm > 0)
+        {
+            wumpusAlarm--;
+            if (wumpusAlarm <= 0)
+            {
+                wumpusAlarm = 0;
+                WakeWumpus();
+            }
         }
     }
 

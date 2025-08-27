@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     public int dungeonSeed = 0;
-
     public RollingTextHistory narrator;
 
     public Button[] exitButtons; // Assign 3 buttons in the Inspector
@@ -118,20 +117,9 @@ public class GameController : MonoBehaviour
 
     public void OnRestButton()
     {
-        Log("You rest for a while... but the bats don't...");
-
-        // Player heals +1, but all live hazards in the level (bats, Wumpus) move
-        player.Heal(1);
-
-        DungeonLevel playerLevel = dungeon.GetLevel(player);
-        playerLevel.MoveAllBats();
-        if (playerLevel.WumpusState == WumpusState.Idle)
-        {
-            Log("... and neither does the Wumpus.");
-            playerLevel.MoveWumpus();
-        }
-
-        gameRules.OnPlayerEnterRoom(player);
+        gameRules.OnPlayerRest();
+        // Re-evaluate the room
+        gameRules.TakePlayerTurn(player);
         UpdateUI();
     }
 
