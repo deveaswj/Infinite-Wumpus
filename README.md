@@ -18,6 +18,7 @@ The player can *rest* to restore a bit of health, but if they do, the bats and W
 
 - Levels and rooms procedurally generated "as needed"
 - Travel between rooms and levels
+  - For every room with stairs leading down, generate a corresponding room below it with stairs leading up
 - Collectable items
   - Donuts
   - Treasures
@@ -82,5 +83,16 @@ The player could attempt to race down to level 50 (perhaps by tactically seeking
 ### Themed Descriptions
 
 I'd like to have the early levels be described as lighter and cleaner, and as the player descends, lower levels appear darker and danker.
-Eventually, past a certain depth, the level descriptions could rotate through a variety of other fanciful and evocative themes, like "fungal blooms" or "humming purple crystals".
+Eventually, past a certain depth, the level descriptions could rotate through a variety of other fanciful and evocative themes, like "fungal blooms" or "crystalline" or "bone cathedral".
+
+### Guaranteed "Safe Path"
+
+Currently the procedural level generator has some basic checks to prevent some invalid room states; for example, no room can be made inaccessible by completely surrounding it with pits, and the Wumpus cannot spawn in a room with a pit. I want to improve the level generator to guarantee at least one completely safe path between the "up stairs" and "down stairs" rooms of each level, so that careful players can always work out a way to avoid all hazards, and so that the Fox pet can navigate that path efficiently.
+
+
+
+
+
+
+
 
