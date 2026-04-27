@@ -14,6 +14,18 @@ Also, there are various *treasures* to find and collect!
 
 The player can *rest* to restore a bit of health, but if they do, the bats and Wumpus will move to new rooms.
 
+---
+
+## Design Focus
+
+This project started as an exploration of constrained procedural generation and navigable graph structures. Using a dodecahedron as the base unit (20 rooms, 3 connections each) creates a predictable topology that still allows for interesting variation in hazard placement, navigation, and player decision-making.
+
+Extending that into concentric levels was a way to experiment with how local structure scales into larger systems—balancing randomness with guarantees like reachability, and eventually safe-path constraints.
+
+A lot of the design centers on tradeoffs: giving players incomplete information, introducing risk through movement, and creating systems (like pets or status effects) that modify how players interpret and navigate the same underlying structure.
+
+---
+
 ## Implemented Features
 
 - Levels and rooms procedurally generated "as needed"
@@ -27,6 +39,8 @@ The player can *rest* to restore a bit of health, but if they do, the bats and W
   - Bats
   - Wumpus
 - Resting to regain HP (also moves bats and wumpus)
+
+---
 
 ## Planned Features
 
@@ -89,7 +103,12 @@ Eventually, past a certain depth, the level descriptions could rotate through a 
 
 Currently the procedural level generator has some basic checks to prevent some invalid room states; for example, no room can be made inaccessible by completely surrounding it with pits, and the Wumpus cannot spawn in a room with a pit. I want to improve the level generator to guarantee at least one completely safe path between the "up stairs" and "down stairs" rooms of each level, so that careful players can always work out a way to avoid all hazards, and so that the Fox pet can navigate that path efficiently.
 
+---
 
+## What I’d Improve Next
+- Strengthen guarantees around safe-path generation while preserving variability
+- Explore how much information to surface vs. let players infer
+- Tighten the interaction between systems (pets, hazards, quests) so they create more meaningful decisions rather than just additive complexity
 
 
 
